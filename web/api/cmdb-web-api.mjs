@@ -5,7 +5,7 @@
 //  - Generate the response
 
 
-import * as cmdbServices from './cmdb-services.mjs'
+import * as cmdbServices from  '../../services/cmdb-services.mjs'
 
 export async function getTasks(req, rsp) {
     rsp.json(await cmdbServices.getTasks())
