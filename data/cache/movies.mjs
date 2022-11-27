@@ -1,4 +1,4 @@
-{"items":[
+export default {"items":[
 	{
 		"id":"tt0111161",		
 		"rank":"1",
@@ -18,7 +18,7 @@
 		"fullTitle":"The Godfather (1972)",
 		"year":"1972",
 		"image":"https://m.media-amazon.com/images/M/MV5BM2MyNjYxNmUtYTAwNi00MTYxLWJmNWYtYzZlODY3ZTk3OTFlXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_Ratio0.7015_AL_.jpg",
-		"crew":"Francis Ford Coppola (dir.), Marlon Brando,	Al Pacino",
+		"crew":"Francis Ford Coppola (dir.), Marlon Brando, Al Pacino",
 		"imDbRating":"9.2",
 		"imDbRatingCount":"1837870"
 	},
@@ -2748,4 +2748,4 @@
 		"imDbRating":"8.0",
 		"imDbRatingCount":"196208"
 	}
-],"errorMessage":""}
+]}

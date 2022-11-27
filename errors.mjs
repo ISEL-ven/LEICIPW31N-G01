@@ -22,5 +22,11 @@ export default {
             code: 4,
             message: 'Invalid Token'
         }
+    },
+    NO_RESULTS: (argName) => {
+        return {
+            code: 5,
+            message: `No results found with  ${argName} name`
+        }
     }
 }

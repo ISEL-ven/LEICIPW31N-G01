@@ -5,57 +5,120 @@
 //  - Generate the response
 
 
-import * as cmdbServices from  '../../services/cmdb-services.mjs'
+//import * as cmdbServices from  '../../services/cmdb-services.mjs'
+import toHttpResponse from './response-errors.mjs'
 
-export async function getTasks(req, rsp) {
-    rsp.json(await cmdbServices.getTasks())
-}
-
-export async function getTask(req, rsp) {
-    const taskId = req.params.id
-    const task = await cmdbServices.getTask(taskId)
-    if(task != undefined) {
-        rsp.json(task)
-    } else {
-        rsp.status(404).json({error: `Task with id ${taskId} not found`})
+export default function (services) {
+    // validate argument
+    if (!services) {
+        throw errors.INVALID_PARAMETER('services')
     }
-}
+    return {
+        getGroups: handleRequest(getGroupsInternal),
+        getGroup : handleRequest(getGroupInternal),
+        deleteGroup : handleRequest(deleteGroupInternal),
+        createGroup : handleRequest(createGroupInternal),
+        updateGroup : handleRequest(updateGroupInternal),
+        getMovies : handleRequest(getMoviesInternal),
+        getMovie : handleRequest(getMovieInternal),
+        deleteMovie : handleRequest(deleteMovieInternal),
+        createUser : createUserInternal
+    }
 
-export async function deleteTask(req, rsp) {
-    const taskId = req.params.id
-    try {
-        const deleted = await cmdbServices.deleteTask(taskId)
-        if(deleted) {
-            rsp.json({status: `Task with id ${taskId} deleted with success`})
-        } else {
-            rsp.status(404).json({error: `Task with id ${taskId} not found`})
+    // internal functions -----------------------------------------------------------------
+    async function getGroupsInternal(req, rsp) {
+        return services.getGroups(req.token, req.query.q, req.query.skip, req.query.limit)
+    }
+
+    async function getGroupInternal(req, rsp) {
+        const groupId = req.params.id
+        return services.getGroup(req.token, groupId)
+    }
+    
+    async function deleteGroupInternal(req, rsp) {
+        const groupId = req.params.id
+        const group = await services.deleteGroup(req.token, groupId)
+        return {
+            status: `Group with id ${groupId} deleted with success`,
+            group: group
         }
-    } catch(e) {
-        console.log(e)
-        rsp.status(500).json({error: `Error deleting Task with id ${taskId}.`})
     }
-}
 
-export async function updateTask(req, rsp) {
-    const taskId = req.params.id
-    try {
-        const updatedTask = await cmdbServices.updateTask(taskId, req.body)
-        if(updatedTask) {
-            rsp.json({status: `Task with id ${taskId} updated with success`})
-        } else {
-            rsp.status(404).json({error: `Task with id ${taskId} not found`})
+    async function createGroupInternal(req, rsp) {
+        let newGroup = await services.createGroup(req.token, req.body)
+        rsp.status(201)
+        return {
+            status: `Group with id ${groupId} created with success`,
+            group: newGroup
         }
-    } catch(e) {
-        console.log(e)
-        rsp.status(500).json({error: `Error updating Task with id ${taskId} `})
     }
-}
 
-export async function createTask(req, rsp) {
-    try {
-        const newTask = await cmdbServices.createTask(req.body)
-        rsp.status(201).json({status: `new task created`, newTask: newTask })
-    } catch(e) {
-        rsp.status(400).json({error: `Error creating task: ${e} `})
+    async function updateGroupInternal(req, rsp) {
+        const groupId = req.params.id
+        const group = await services.updateGroup(req.token, groupId, req.body)
+        return {
+            status: `Group with id ${groupId} updated with success`,
+            group: group
+        }
+    }
+
+    async function getMoviesInternal(req, rsp) {
+        console.log('WebAPI: ' + req.query.q)
+        return services.getMovies(req.token, req.query.q, req.query.skip, req.query.limit)
+    }
+
+    async function getMovieInternal(req, rsp) {
+        const idMovie = req.params.idMovie
+        return services.getMovie(req.token, idMovie)
+    }
+
+    async function deleteMovieInternal(req, rsp) {
+        const groupId = req.params.id
+        const movieId = req.params.idMovie
+        const movie = await services.deleteMovie(req.token, groupId, movieId)
+        return {
+            status: `Movie with id ${movieId} from group with id ${groupId} deleted with success`,
+            movie: movie
+        }
+    }
+
+    async function createUserInternal(req, rsp) {
+        let newUser = await services.createUser(req.body.name)
+        console.log("API: " + newUser.name)  // DEBUG
+        rsp.status(201);
+        return {
+            status: `User with name ${newUser.name} created with success`,
+            user: newUser
+        };
+    }
+
+
+    // Auxiliary functions ----------------------------------------------------------------
+    function buildNotFoundMessage(rsp, groupId) {
+        rsp
+            .status(404)
+            .json({error: `Group with id ${groupId} not found`})
+    }
+
+    function handleRequest(handler) {
+        return async function (req, rsp) {
+            const BEARER_STR = "Bearer "
+            const tokenHeader = req.get("Authorization")
+            if (!(tokenHeader && tokenHeader.startsWith(BEARER_STR) && tokenHeader.length > BEARER_STR.length)) {
+                rsp
+                    .status(401)
+                    .json({ error: `Invalid authentication token` })
+                return
+            }
+            req.token = tokenHeader.split(" ")[1]
+            try {
+                let body = await handler(req, rsp)
+                rsp.json(body)
+            } catch (e) {
+                const response = toHttpResponse(e)
+                rsp.status(response.status).json({ error: response.body })
+                console.log(e)
+            }
+        }
     }
 }

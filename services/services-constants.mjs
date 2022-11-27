@@ -1,1 +1,1 @@
-export const MAX_LIMIT = 50 //query results
+export const MAX_LIMIT = 250 //query results

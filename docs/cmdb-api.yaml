@@ -10,7 +10,7 @@ info:
   version: 1.0.0
 servers:
   - description: Localhost server for testing API
-    url: http://localhost:54321/api
+    url: http://localhost:3000
 
 tags:
 - name: users   # user name
@@ -35,16 +35,10 @@ paths:
       responses:
         201:
           description: user created
-          content:
+          content: 
             application/json:
               schema:
-                required:
-                - token
-                type: object
-                properties:
-                  token:
-                    type: string
-                    format: uuid
+                $ref: '#/components/schemas/NewGroupCreated'
         400:
           description: Invalid input, object invalid
           content: {}
@@ -469,6 +463,17 @@ components:
         userName:
           type: string
           example: joao
+    NewUserCreated:
+      required:
+        - status
+        - user
+      type: object
+      properties:
+        status:
+          type: string
+          example: User with name joao created with success
+        user:
+          $ref: '#/components/schemas/NewUser'
     NewGroupCreated:
       required:
         - status

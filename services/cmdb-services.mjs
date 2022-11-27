@@ -2,15 +2,18 @@
 
 //import * as memData from './data/cmdb-data-mem.mjs'
 //import * as imdbData from '/data/cmdb-movies-data.mjs'
-import {MAX_LIMIT} from './services-constants'
-import errors from '../errors'
+import {MAX_LIMIT} from './services-constants.mjs'
+import errors from '../errors.mjs'
 
-export default function(moviesData, userData) {
+export default function(groupsData, usersData, moviesData) {
+    if (!groupsData) {
+        throw errors.INVALID_PARAMETER('groupsData')
+    }
+    if (!usersData) {
+        throw errors.INVALID_PARAMETER('usersData')
+    }
     if (!moviesData) {
         throw errors.INVALID_PARAMETER('moviesData')
-    }
-    if (!userData) {
-        throw errors.INVALID_PARAMETER('userData')
     }
 
     return {
@@ -22,7 +25,8 @@ export default function(moviesData, userData) {
         getMovies: getMovies,        // search movies
         getMovie: getMovie,         // get especific movie
         deleteMovie: deleteMovie,  // remove movie from group
-        addMovie: addMovie        // add movie to group
+        addMovie: addMovie,       // add movie to group
+        createUser : createUser  // add user
     }
 
     async function getGroups(userToken, q, skip=0, limit=MAX_LIMIT) {
@@ -37,21 +41,21 @@ export default function(moviesData, userData) {
             || limit < 0
             ) {
                 throw errors.INVALID_PARAMETER('skip or limit', `Skip and limit must be positive, less than ${MAX_LIMIT} and its sum must be less or equal to ${MAX_LIMIT}`)
-        }
+            }
 
-        const user = await userData.getUser(userToken)
+        const user = await usersData.getUser(userToken)
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
-        return memData.getGroups(user.id, q, skip, limit)
+        return groupsData.getGroups(user.id, q, skip, limit)
     }
 
     async function getGroup(userToken, groupId) {
-        const user = await userData.getUser(userToken)
+        const user = await usersData.getUser(userToken)
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
-        const group = await memData.getGroup(user.id, groupId)
+        const group = await groupsData.getGroup(user.id, groupId)
         if (group) {
             return group
         }
@@ -59,46 +63,43 @@ export default function(moviesData, userData) {
     }
 
     async function deleteGroup(userToken, groupId) {
-        const user = await userData.getUser(userToken)
+        const user = await usersData.getUser(userToken)
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
-        const group = await memData.getGroup(user.id, groupId)
-        if (group) {
-            return memData.deleteGroup(user.id, groupId)
-        }
-        throw errors.NOT_FOUND(`Group ${groupId}`)
+        return groupsData.deleteGroup(user.id, groupId)
     }
 
     async function createGroup(userToken, groupToCreate) {
-        const user = await userData.getUser(userToken)
+        const user = await usersData.getUser(userToken)
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
-        if (!isAString(taskToCreate.name)) {
-            throw errors.INVALID_PARAMETER('name')
+        if (!isAString(groupToCreate.title)) {
+            throw errors.INVALID_PARAMETER('title')
         }
         if (!isAString(taskToCreate.description)) {
             throw errors.INVALID_PARAMETER('description')
         }
-        return memData.createGroup(user.id, groupToCreate)
+        return groupsData.createGroup(user.id, groupToCreate)
     }
 
     async function updateGroup(userToken, groupId, groupToCreate) {
-        const user = await userData.getUser(userToken)
+        const user = await usersData.getUser(userToken)
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
-        if (!isAString(taskToCreate.name)) {
-            throw errors.INVALID_PARAMETER('name')
+        if (!isAString(taskToCreate.title)) {
+            throw errors.INVALID_PARAMETER('title')
         }
         if (!isAString(taskToCreate.description)) {
             throw errors.INVALID_PARAMETER('description')
         }
-        return memData.updateGroup(user.id, groupId, groupToCreate)
+        return groupsData.updateGroup(user.id, groupId, groupToCreate)
     }
 
     async function getMovies(userToken, q, skip=0, limit=MAX_LIMIT) {
+        console.log('entering getMovies Services ' +q)
         limit = Number(limit)
         skip = Number(skip)
         if (   isNaN(limit)
@@ -112,19 +113,21 @@ export default function(moviesData, userData) {
                 throw errors.INVALID_PARAMETER('skip or limit', `Skip and limit must be positive, less than ${MAX_LIMIT} and its sum must be less or equal to ${MAX_LIMIT}`)
         }
 
-        const user = await userData.getUser(userToken)
+        const user = await usersData.getUser(userToken)
+        console.log(user)
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
-        return memData.getMovies(user.id, q, skip, limit)
+        return await moviesData.search(user.id, q, skip, limit)
     }
 
     async function getMovie(userToken, movieId) {
-        const user = await userData.getUser(userToken)
+        const user = await usersData.getUser(userToken)
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
-        const movie = await memData.getMovie(user.id, movieId)
+        console.log(movieId)
+        const movie = await moviesData.getMovieById(user.id, movieId)
         if (movie) {
             return movie
         }
@@ -132,23 +135,23 @@ export default function(moviesData, userData) {
     }
 
     async function deleteMovie(userToken, groupId, movieId) {
-        const user = await userData.getUser(userToken)
+        const user = await usersData.getUser(userToken)
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
-        const group = await memData.getGroup(user.id, groupId)
+        const group = await groupsData.getGroup(user.id, groupId)
         if (!group) {
             throw errors.NOT_FOUND(`Group ${groupId}`)
         }
-        const movie = await memData.getMovie(user.id, groupId, movieId)
+        const movie = await moviesData.getMovie(user.id, groupId, movieId)
         if (!movie) {
             throw errors.NOT_FOUND(`Group ${groupId} has no movie ${movieId}`)
         }
-        return memData.deleteMovie(user.id, groupId, movieId)        
+        return moviesData.deleteMovie(user.id, groupId, movieId)        
     }
 
     async function addMovie(userToken, groupId, movieId) {
-        const user = await userData.getUser(userToken)
+        const user = await usersData.getUser(userToken)
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
@@ -158,10 +161,19 @@ export default function(moviesData, userData) {
         }
         return memData.addMovie(user.id, groupId, movieId)
     }
+
+    async function createUser(name){
+        console.log('createUserService: ' +name)
+        if(name == undefined) {
+            throw errors.INVALID_ARGUMENT("name")
+        } 
+        const final = await usersData.createUser(name)
+        console.log(final)
+        return final
+    }
 }
 
 // Auxiliary functions
-
 function isAString(value) {
     return typeof value == 'string' && value != ""
 }
