@@ -16,15 +16,17 @@ export async function createUser(userName) {
         name: userName,
         token: crypto.randomUUID()
     }
+    console.log(`UsersDATA-createUser: user-${newUser}`)
     users.push(newUser)
     return newUser
 }
 
 export async function getUser(userToken) {
     const user =  users.find(user => user.token == userToken)
+    console.log(`UsersDATA: userToken-${userToken}, user-${user}`)
     if (!user) {
         throw errors.USER_NOT_FOUND('user')
     }
-    return Promise.resolve(user) // TODO: check if is necessary Promise.resolve(user)
+    return user
 }
 

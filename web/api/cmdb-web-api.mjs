@@ -9,35 +9,39 @@
 import toHttpResponse from './response-errors.mjs'
 
 export default function (services) {
-    // validate argument
+    // validate argument -----------------------------
     if (!services) {
+        console.log('Web-api: services is missing!')
         throw errors.INVALID_PARAMETER('services')
     }
     return {
-        getGroups: handleRequest(getGroupsInternal),
-        getGroup : handleRequest(getGroupInternal),
-        deleteGroup : handleRequest(deleteGroupInternal),
-        createGroup : handleRequest(createGroupInternal),
-        updateGroup : handleRequest(updateGroupInternal),
-        getMovies : handleRequest(getMoviesInternal),
-        getMovie : handleRequest(getMovieInternal),
+        getGroups: handleRequest(getGroupsInternal, true),
+        getGroup : handleRequest(getGroupInternal, true),
+        deleteGroup : handleRequest(deleteGroupInternal, true),
+        createGroup : handleRequest(createGroupInternal, true),
+        updateGroup : handleRequest(updateGroupInternal, true),
+        getMovies : handleRequest(getMoviesInternal, true),
+        getMovie : handleRequest(getMovieInternal, true),
         deleteMovie : handleRequest(deleteMovieInternal),
-        createUser : createUserInternal
+        createUser : handleRequest(createUserInternal, false)
     }
 
     // internal functions -----------------------------------------------------------------
     async function getGroupsInternal(req, rsp) {
+        console.log(`WebAPI-getGroups: token-${req.token}, q-${req.query.q}, skip-${req.query.skip}, limit-${req.query.limit}`)
         return services.getGroups(req.token, req.query.q, req.query.skip, req.query.limit)
     }
 
     async function getGroupInternal(req, rsp) {
         const groupId = req.params.id
+        console.log(`WebAPI-getGroup: token-${req.token}, groupId-${groupId}}`)
         return services.getGroup(req.token, groupId)
     }
     
     async function deleteGroupInternal(req, rsp) {
         const groupId = req.params.id
         const group = await services.deleteGroup(req.token, groupId)
+        console.log(`WebAPI-deleteGroup: token-${req.token}, groupId-${groupId}, group-${group}`)
         return {
             status: `Group with id ${groupId} deleted with success`,
             group: group
@@ -47,28 +51,31 @@ export default function (services) {
     async function createGroupInternal(req, rsp) {
         let newGroup = await services.createGroup(req.token, req.body)
         rsp.status(201)
+        console.log(`WebAPI-createGroup: token-${req.token}, title-${req.body.title}, description-${req.body.description}`)
         return {
-            status: `Group with id ${groupId} created with success`,
+            status: `Group with id ${newGroup.id} created with success`,
             group: newGroup
         }
     }
 
     async function updateGroupInternal(req, rsp) {
-        const groupId = req.params.id
-        const group = await services.updateGroup(req.token, groupId, req.body)
+        console.log(`paramas: ${req.params.id}`)
+        const group = await services.updateGroup(req.token, req.params.id, req.body)
+        console.log(`WebAPI-updateGroup: token-${req.token}, groupId-${req.params.id}, body-${req.body}`)
         return {
-            status: `Group with id ${groupId} updated with success`,
+            status: `Group with id ${req.params.id} updated with success`,
             group: group
         }
     }
 
     async function getMoviesInternal(req, rsp) {
-        console.log('WebAPI: ' + req.query.q)
+        console.log(`WebAPI-getMovies: token-${req.token}, q-${req.query.q}, skip-${req.query.skip}, limit-${req.query.limit}`)
         return services.getMovies(req.token, req.query.q, req.query.skip, req.query.limit)
     }
 
     async function getMovieInternal(req, rsp) {
         const idMovie = req.params.idMovie
+        console.log(`WebAPI-getMovie: token-${req.token}, movieId-${idMovie}`)
         return services.getMovie(req.token, idMovie)
     }
 
@@ -76,6 +83,7 @@ export default function (services) {
         const groupId = req.params.id
         const movieId = req.params.idMovie
         const movie = await services.deleteMovie(req.token, groupId, movieId)
+        console.log(`WebAPI-deleteMovie: token-${req.token}, groupId-${groupId}, movieId-${movieId}`)
         return {
             status: `Movie with id ${movieId} from group with id ${groupId} deleted with success`,
             movie: movie
@@ -84,7 +92,7 @@ export default function (services) {
 
     async function createUserInternal(req, rsp) {
         let newUser = await services.createUser(req.body.name)
-        console.log("API: " + newUser.name)  // DEBUG
+        console.log(`WebAPI-createUser: body-${req.body}`)
         rsp.status(201);
         return {
             status: `User with name ${newUser.name} created with success`,
@@ -94,15 +102,11 @@ export default function (services) {
 
 
     // Auxiliary functions ----------------------------------------------------------------
-    function buildNotFoundMessage(rsp, groupId) {
-        rsp
-            .status(404)
-            .json({error: `Group with id ${groupId} not found`})
-    }
-
-    function handleRequest(handler) {
+    function handleRequest(handler, needAuthentication) {
+        //console.log(`WebAPI-handleRequest: handler-${handler}, needAuthentication-${needAuthentication}`)
         return async function (req, rsp) {
-            const BEARER_STR = "Bearer "
+            if (needAuthentication) {
+                const BEARER_STR = "Bearer "
             const tokenHeader = req.get("Authorization")
             if (!(tokenHeader && tokenHeader.startsWith(BEARER_STR) && tokenHeader.length > BEARER_STR.length)) {
                 rsp
@@ -111,6 +115,7 @@ export default function (services) {
                 return
             }
             req.token = tokenHeader.split(" ")[1]
+            }            
             try {
                 let body = await handler(req, rsp)
                 rsp.json(body)

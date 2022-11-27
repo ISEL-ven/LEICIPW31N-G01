@@ -45,6 +45,5 @@ app.post('/users', api.createUser)
 
 
 // Start App -----------------------------------------------------------------------
-app.listen(PORT, () => console.log(`Server listening at http://localhost:${PORT}`))
+app.listen(PORT, () => console.log(`Server listening at http://localhost:${PORT}\nEnd setting up server`))
 
-console.log("End setting up server")

@@ -2,7 +2,6 @@
 // In this specific module, data is online
 
 import  fetch  from 'node-fetch'
-
 import errors from '../errors.mjs'
 import cache from './cache/movies.mjs'
 
@@ -12,6 +11,7 @@ const LIMIT = 250
 
 // Fuctions that search cache first -------------------------------------------------------
 export async function search(userId, q, skip, limit){
+    console.log(`moviesDATA-search: userId-${userId}, q-${q}, skip-${skip}, limit-${limit}`)
     if (limit == 0) limit = LIMIT
     if (q.length > 1) {
         const movies = cache.items.map(item => {if (item.title.includes(q)) return item}).filter(val => val != null)
@@ -33,6 +33,7 @@ export async function search(userId, q, skip, limit){
 }  
 
 export async function getMovieById(userId, id){
+    console.log(`moviesDATA-getMovieById: userId-${userId}, movieId-${id}`)
     const movie = cache.items.map(item => {if (item.id.localeCompare(id) == 0) return item}).filter(val => val != null)
     if (movie.length <1) {
         return getMovieByIdExternal(id)
@@ -42,15 +43,16 @@ export async function getMovieById(userId, id){
 
 
 // Fuctions that use IMDB API - external ----------------------------------------------------
-async function top250moviesExternal(quantity){  // check if quantity > 250
+async function top250moviesExternal(quantity){
+    console.log(`MoviesData-top250: search in external IMDB, quantity-${quantity}`)
     const movies = fetch(IMDB_URL+'top250movies'+IMDB_API)
     checkError(movies.errorMessage)
-    cache.items += movies
-    console.log(movies.items.slice(0, quantity))  // DEBUG LINE
+    cache.items += movies  // TODO: not tested =======================================================================================
     return movies.items.slice(0, quantity)
 }
 
 async function nameSearchExternal(name, quantity) {
+    console.log(`MoviesData-searchByName: search in external IMDB, name-${name},  quantity-${quantity}`)
     const movies = fetch(IMDB_URL+'SearchMovie'+IMDB_API+'/${name}')
     
     checkError(movies.errorMessage)
@@ -66,6 +68,7 @@ async function nameSearchExternal(name, quantity) {
 }
 
 async function getMovieByIdExternal(id){
+    console.log(`MoviesData-searchById: search in external IMDB, id-${id}`)
     const movie = fetch(IMDB_URL+'Title'+IMDB_API+id)
     checkError(movie.errorMessage)
     cache.items += movie
