@@ -415,6 +415,7 @@ components:
       - description
       - userId
       - totalDuration
+      - numMovies
       - movies
       type: object
       properties:
@@ -428,6 +429,8 @@ components:
           type: string
           example: playlist of western movies
         userId:
+          type: integer
+        numMovies:
           type: integer
         totalDuration:
           type: integer

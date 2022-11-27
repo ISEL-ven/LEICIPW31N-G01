@@ -22,19 +22,22 @@ export default function (services) {
         updateGroup : handleRequest(updateGroupInternal, true),
         getMovies : handleRequest(getMoviesInternal, true),
         getMovie : handleRequest(getMovieInternal, true),
-        deleteMovie : handleRequest(deleteMovieInternal),
-        createUser : handleRequest(createUserInternal, false)
+        deleteMovie : handleRequest(deleteMovieInternal, true),
+        createUser : handleRequest(createUserInternal, false),
+        addMovie : handleRequest(addMovieInternal, true)
     }
 
     // internal functions -----------------------------------------------------------------
     async function getGroupsInternal(req, rsp) {
         console.log(`WebAPI-getGroups: token-${req.token}, q-${req.query.q}, skip-${req.query.skip}, limit-${req.query.limit}`)
+        rsp.status(200)
         return services.getGroups(req.token, req.query.q, req.query.skip, req.query.limit)
     }
 
     async function getGroupInternal(req, rsp) {
         const groupId = req.params.id
         console.log(`WebAPI-getGroup: token-${req.token}, groupId-${groupId}}`)
+        rsp.status(200)
         return services.getGroup(req.token, groupId)
     }
     
@@ -42,6 +45,7 @@ export default function (services) {
         const groupId = req.params.id
         const group = await services.deleteGroup(req.token, groupId)
         console.log(`WebAPI-deleteGroup: token-${req.token}, groupId-${groupId}, group-${group}`)
+        rsp.status(201)
         return {
             status: `Group with id ${groupId} deleted with success`,
             group: group
@@ -59,9 +63,9 @@ export default function (services) {
     }
 
     async function updateGroupInternal(req, rsp) {
-        console.log(`paramas: ${req.params.id}`)
         const group = await services.updateGroup(req.token, req.params.id, req.body)
         console.log(`WebAPI-updateGroup: token-${req.token}, groupId-${req.params.id}, body-${req.body}`)
+        rsp.status(201)
         return {
             status: `Group with id ${req.params.id} updated with success`,
             group: group
@@ -70,13 +74,27 @@ export default function (services) {
 
     async function getMoviesInternal(req, rsp) {
         console.log(`WebAPI-getMovies: token-${req.token}, q-${req.query.q}, skip-${req.query.skip}, limit-${req.query.limit}`)
+        rsp.status(200)
         return services.getMovies(req.token, req.query.q, req.query.skip, req.query.limit)
     }
 
     async function getMovieInternal(req, rsp) {
         const idMovie = req.params.idMovie
         console.log(`WebAPI-getMovie: token-${req.token}, movieId-${idMovie}`)
+        rsp.status(200)
         return services.getMovie(req.token, idMovie)
+    }
+
+    async function addMovieInternal(req, rsp) {
+        const groupId = req.params.id
+        const movieId = req.params.idMovie
+        const movie = await services.addMovie(req.token, groupId, movieId)
+        console.log(`WebAPI-addMovie: token-${req.token}, groupId-${groupId}, movieId-${movieId}`)
+        rsp.status(201)
+        return {
+            status: `Movie with id ${movieId} from group with id ${groupId} added with success`,
+            movie: movie
+        }
     }
 
     async function deleteMovieInternal(req, rsp) {
@@ -84,6 +102,7 @@ export default function (services) {
         const movieId = req.params.idMovie
         const movie = await services.deleteMovie(req.token, groupId, movieId)
         console.log(`WebAPI-deleteMovie: token-${req.token}, groupId-${groupId}, movieId-${movieId}`)
+        rsp.status(201)
         return {
             status: `Movie with id ${movieId} from group with id ${groupId} deleted with success`,
             movie: movie
@@ -103,7 +122,6 @@ export default function (services) {
 
     // Auxiliary functions ----------------------------------------------------------------
     function handleRequest(handler, needAuthentication) {
-        //console.log(`WebAPI-handleRequest: handler-${handler}, needAuthentication-${needAuthentication}`)
         return async function (req, rsp) {
             if (needAuthentication) {
                 const BEARER_STR = "Bearer "

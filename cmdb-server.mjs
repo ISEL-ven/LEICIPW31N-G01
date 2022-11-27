@@ -40,6 +40,7 @@ app.get('/search', api.getMovies)
 app.get('/search/:idMovie', api.getMovie)
 app.delete('/groups/:id/:idMovie', api.deleteMovie)
 app.post('/users', api.createUser)
+app.post('/groups/:id/:idMovie', api.addMovie)
 
 // Web site routes -----------------------------------------------------------------
 

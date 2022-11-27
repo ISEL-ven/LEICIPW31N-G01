@@ -1,7 +1,5 @@
 // Module contains all CMDB management logic
 
-//import * as memData from './data/cmdb-data-mem.mjs'
-//import * as imdbData from '/data/cmdb-movies-data.mjs'
 import {MAX_LIMIT} from './services-constants.mjs'
 import errors from '../errors.mjs'
 
@@ -122,7 +120,6 @@ export default function(groupsData, usersData, moviesData) {
         }
 
         const user = await usersData.getUser(userToken)
-        console.log(user)
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
@@ -134,8 +131,7 @@ export default function(groupsData, usersData, moviesData) {
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
-        console.log(movieId)
-        const movie = await moviesData.getMovieById(user.id, movieId)
+        const movie = await moviesData.getMovieById(movieId)
         console.log(`Services-getMovie: userToken-${userToken}, movieId-${movieId}, user-${user}, movie-${movie}`)
         if (movie) {
             return movie
@@ -152,7 +148,7 @@ export default function(groupsData, usersData, moviesData) {
         if (!group) {
             throw errors.NOT_FOUND(`Group ${groupId}`)
         }
-        const movie = await moviesData.getMovie(user.id, groupId, movieId)
+        const movie = await moviesData.getMovieById(movieId)
         console.log(`Services-deleteMovie: userToken-${userToken}, groupId-${groupId}, movieId-${movieId}, user-${user}, group-${group}, movie-${movie}`)
         if (!movie) {
             throw errors.NOT_FOUND(`Group ${groupId} has no movie ${movieId}`)
@@ -165,7 +161,7 @@ export default function(groupsData, usersData, moviesData) {
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
-        const group = await memData.getGroup(user.id, groupId)
+        const group = await groupsData.getGroup(user.id, groupId)
         if (!group) {
             throw errors.NOT_FOUND(`Group ${groupId}`)
         }
