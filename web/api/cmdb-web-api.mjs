@@ -1,8 +1,8 @@
-// Module that contains the functions that handle all HTTP APi requests.
+// Module that contains the functions that handle all HTTP API requests.
 // Handle HTTP request means:
 //  - Obtain data from requests. Request data can be obtained from: URI(path, query, fragment), headers, body
 //  - Invoque the corresponding operation on services
-//  - Generate the response
+//  - Generate the response in JSON format
 
 
 //import * as cmdbServices from  '../../services/cmdb-services.mjs'

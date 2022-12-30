@@ -6,13 +6,14 @@ import express from 'express'
 import swaggerUi from 'swagger-ui-express'
 import yaml from 'yamljs'
 import cors from 'cors'
+import url from 'url'
 
 import * as groupsData from './data/cmdb-data-mem.mjs'
 import * as usersData from './data/users-data.mjs'
 import * as moviesData from './data/cmdb-movies-data.mjs'
 import servicesInit from './services/cmdb-services.mjs'
 import apiInit from './web/api/cmdb-web-api.mjs'
-//import siteInit from './web/site/cmdb-web-site.mjs'
+import siteInit from './web/site/cmdb-web-site.mjs'
 
 
 // global constants ----------------------------------------------------------------
@@ -20,7 +21,8 @@ const PORT = 3000
 const swaggerDocument = yaml.load('./docs/cmdb-api.yaml')
 const services = servicesInit(groupsData, usersData, moviesData)
 const api = apiInit(services)
-//const site = siteInit(services)
+const site = siteInit(services)
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
 // App defenitions -----------------------------------------------------------------
 console.log("Start setting up server")
@@ -43,7 +45,8 @@ app.post('/users', api.createUser)
 app.post('/groups/:id/:idMovie', api.addMovie)
 
 // Web site routes -----------------------------------------------------------------
-
+app.use('/cmdb/static', express.static(`${__dirname}./static-files/`))
+app.get('/cmdb/groups/:id', site.getGroup)
 
 // Start App -----------------------------------------------------------------------
 app.listen(PORT, () => console.log(`Server listening at http://localhost:${PORT}\nEnd setting up server`))
