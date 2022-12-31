@@ -54,6 +54,7 @@ app.post('/groups/:id/:idMovie', api.addMovie)
 
 // Web site routes -----------------------------------------------------------------
 app.use('/cmdb/static', express.static(`${__dirname}./static-files/`))
+app.get('/', site.getRoot)
 app.get('cmdb/groups/new/', site.getNewGroupForm)
 app.get('/cmdb/groups', site.getGroups)
 app.get('/cmdb/groups/:id', site.getGroup)

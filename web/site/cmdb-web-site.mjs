@@ -9,10 +9,10 @@ import errors from "../../errors.mjs"
 
 //import * as cmdbServices from  '../../services/cmdb-services.mjs' já estava comentado
 
-//import toHttpResponse from './response-errors.mjs'
+import toHttpResponse from '../api/response-errors.mjs'  // TODO não usar aqui os errors da API
 
 // TODO: token martelado - apagar!!!!
-const TOKEN = 'martelado'
+const TOKEN = '8bf716e7-e3af-4343-93e0-9c6edb7b8005'
 
 function View(name, data) {
     this.name = name
@@ -26,6 +26,7 @@ export default function (services) {
         throw errors.INVALID_PARAMETER('services')
     }
     return {
+        getRoot: getRoot,
         getGroups: handleRequest(getGroupsInternal),
         getGroup: handleRequest(getGroupInternal),
         getNewGroupForm: getNewGroupForm,
@@ -39,6 +40,10 @@ export default function (services) {
         deleteMovie: handleRequest(deleteMovieInternal),
         createUser: handleRequest(createUserInternal),
         addMovie: handleRequest(addMovieInternal)
+    }
+
+    async function getRoot(req, rsp) {
+        rsp.redirect('/groups')
     }
 
     async function getGroupsInternal(req, rsp) {
@@ -101,11 +106,12 @@ export default function (services) {
      // Auxiliary functions ----------------------------------------------------------------
      function handleRequest(handler) {
         return async function (req, rsp) {
-            req.token = 'TODO: martelar token'
+            req.token = TOKEN
                
             try {
                 let view = await handler(req, rsp)
                 if (view) {
+                    console.log('view')
                     rsp.render(view.name, view.data)
                 }                
             } catch (e) {

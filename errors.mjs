@@ -8,7 +8,7 @@ export default {
     USER_NOT_FOUND: () => {
         return {
             code: 2,
-            message: 'User not found'
+            message: 'New year not found'
         }
     },
     NOT_FOUND: (argName) => {  // Group or Movie
