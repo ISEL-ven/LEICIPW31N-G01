@@ -32,6 +32,7 @@ let app = express()
 app.use(cors())
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 app.use(express.json())
+app.use(express.urlencoded())
 
 // View engine setup ---------------------------------------------------------------
 const viewsPath = path.join(__dirname, 'web', 'site', 'views')
@@ -53,10 +54,13 @@ app.post('/groups/:id/:idMovie', api.addMovie)
 
 // Web site routes -----------------------------------------------------------------
 app.use('/cmdb/static', express.static(`${__dirname}./static-files/`))
+app.get('cmdb/groups/new/', site.getNewGroupForm)
 app.get('/cmdb/groups', site.getGroups)
 app.get('/cmdb/groups/:id', site.getGroup)
-app.delete('/cmdb/groups/:id', site.deleteGroup)
 app.post('/cmdb/groups', site.createGroup)
+
+
+app.delete('/cmdb/groups/:id', site.deleteGroup)
 app.put('/cmdb/groups/:id', site.updateGroup)
 app.get('/cmdb/search', site.getMovies)
 app.get('/cmdb/search/:idMovie', site.getMovie)

@@ -4,6 +4,8 @@
 //  - Invoque the corresponding operation on services
 //  - Generate the response in HTML format
 
+import errors from "../../errors.mjs"
+
 
 //import * as cmdbServices from  '../../services/cmdb-services.mjs' já estava comentado
 
@@ -26,8 +28,11 @@ export default function (services) {
     return {
         getGroups: handleRequest(getGroupsInternal),
         getGroup: handleRequest(getGroupInternal),
-        deleteGroup: handleRequest(deleteGroupInternal),
+        getNewGroupForm: getNewGroupForm,
         createGroup: handleRequest(createGroupInternal),
+
+
+        deleteGroup: handleRequest(deleteGroupInternal),        
         updateGroup: handleRequest(updateGroupInternal),
         getMovies: handleRequest(getMoviesInternal),
         getMovie: handleRequest(getMovieInternal),
@@ -49,12 +54,24 @@ export default function (services) {
         return new View('group', group)
     }
 
+    async function getNewGroupForm(req, rsp) {
+        rsp.render('newGroup')
+    }
+
     async function deleteGroupInternal(req, rsp) {
         // TODO
     }
 
     async function createGroupInternal(req, rsp) {
-        // TODO
+        try {
+            const newGroup = await services.createGroup(req.token, req.body)
+            rsp.redirect(`/cmdb/groups/${newGroup.id}`)
+        } catch (e) {
+            if (e.code == 1) {
+                return new View('newGroup', req.body)
+            }
+            throw e
+        }        
     }
 
     async function updateGroupInternal(req, rsp) {
@@ -88,7 +105,9 @@ export default function (services) {
                
             try {
                 let view = await handler(req, rsp)
-                rsp.render(view.name, view.data)
+                if (view) {
+                    rsp.render(view.name, view.data)
+                }                
             } catch (e) {
                 const response = toHttpResponse(e)
                 rsp.status(response.status).json({ error: response.body })
