@@ -13,10 +13,13 @@ import toHttpResponse from '../api/response-errors.mjs'  // TODO não usar aqui 
 
 // TODO: token martelado - apagar!!!!
 const TOKEN = '8bf716e7-e3af-4343-93e0-9c6edb7b8005'
+const ROOT = '/cmdb/groups'
 
-function View(name, data) {
-    this.name = name
-    this.data = data
+class View {
+    constructor(name, data) {
+        this.name = name
+        this.data = data
+    }
 }
 
 export default function (services) {
@@ -31,10 +34,11 @@ export default function (services) {
         getGroup: handleRequest(getGroupInternal),
         getNewGroupForm: getNewGroupForm,
         createGroup: handleRequest(createGroupInternal),
-
-
         deleteGroup: handleRequest(deleteGroupInternal),        
         updateGroup: handleRequest(updateGroupInternal),
+        getUpdateGroupForm: getUpdateGroupForm,
+
+
         getMovies: handleRequest(getMoviesInternal),
         getMovie: handleRequest(getMovieInternal),
         deleteMovie: handleRequest(deleteMovieInternal),
@@ -43,14 +47,12 @@ export default function (services) {
     }
 
     async function getRoot(req, rsp) {
-        rsp.redirect('/groups')
+        rsp.redirect(ROOT)
     }
 
     async function getGroupsInternal(req, rsp) {
         const groups = await services.getGroups(req.token, req.query.q, req.query.skip, req.query.limit)
         return new View('groups', { title: 'All groups', groups: groups })
-        
-        //rsp.render('goups', { title: 'All groups', groups: groups })
     }
 
     async function getGroupInternal(req, rsp) {
@@ -64,19 +66,25 @@ export default function (services) {
     }
 
     async function deleteGroupInternal(req, rsp) {
-        // TODO
+        const groupId = req.params.id
+        const group = await services.deleteGroup(req.token, groupId)
+        rsp.redirect(ROOT)
     }
 
     async function createGroupInternal(req, rsp) {
         try {
             const newGroup = await services.createGroup(req.token, req.body)
-            rsp.redirect(`/cmdb/groups/${newGroup.id}`)
+            rsp.redirect(`${ROOT}/${newGroup.id}`)
         } catch (e) {
             if (e.code == 1) {
                 return new View('newGroup', req.body)
             }
             throw e
         }        
+    }
+
+    async function getUpdateGroupForm(req, rsp) {
+        
     }
 
     async function updateGroupInternal(req, rsp) {

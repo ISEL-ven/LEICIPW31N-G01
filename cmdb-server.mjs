@@ -9,6 +9,9 @@ import cors from 'cors'
 import url from 'url'
 import path from 'path'
 import hbs from 'hbs'
+import cookieParser from 'cookie-parser'
+import session from 'express-session'
+import fileStore from 'session-file-store'
 
 import * as groupsData from './data/cmdb-data-mem.mjs'
 import * as usersData from './data/users-data.mjs'
@@ -32,7 +35,14 @@ let app = express()
 app.use(cors())
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 app.use(express.json())
-app.use(express.urlencoded())
+app.use(express.urlencoded({extended: false}))
+app.use(cookieParser())
+
+const FileStore = fileStore(session)
+app.use(session({
+    secret: "v4k3uG62GY3e4k",
+    store: new FileStore()
+}))
 
 // View engine setup ---------------------------------------------------------------
 const viewsPath = path.join(__dirname, 'web', 'site', 'views')
@@ -40,7 +50,7 @@ app.set('view engine', 'hbs')
 app.set('views', viewsPath)
 hbs.registerPartials(path.join(viewsPath, 'partials'))
 
-app.use(cookieMiddleware)
+app.use(sessionMiddleware)
 
 // Web API routes -------------------------------------------------------------------
 app.get('/groups', api.getGroups)
@@ -75,3 +85,9 @@ app.post('/cmdb/groups/:id/:idMovie', site.addMovie)
 // Start App -----------------------------------------------------------------------
 app.listen(PORT, () => console.log(`Server listening at http://localhost:${PORT}\nEnd setting up server`))
 
+// Route handling functions ---------------------------------------------------------
+function sessionMiddleware(req, rsp, next) {
+    req.session.counter = (req.session.counter || 0) + 1
+    console.log(`Session counter: ${req.session.counter}`)
+    next()
+}
