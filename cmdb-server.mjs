@@ -3,6 +3,8 @@
 
 // import modules -----------------------------------------------------------------
 import express from 'express'
+import morgan from 'morgan'
+import passport, { serializeUser } from 'passport'
 import swaggerUi from 'swagger-ui-express'
 import yaml from 'yamljs'
 import cors from 'cors'
@@ -37,12 +39,22 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
 app.use(cookieParser())
+app.use(morgan('dev'))
 
 const FileStore = fileStore(session)
 app.use(session({
     secret: "v4k3uG62GY3e4k",
+    resave: false,
+    saveUninitialized: false,
     store: new FileStore()
 }))
+
+// Passport initialization --------------------------------------------------------
+app.use(passport.session())
+app.use(passport.initialize())
+
+passport.serializeUser(serializeUserDeserializeUser)
+passport.deserializeUser(serializeUserDeserializeUser)
 
 // View engine setup ---------------------------------------------------------------
 const viewsPath = path.join(__dirname, 'web', 'site', 'views')
@@ -90,4 +102,12 @@ function sessionMiddleware(req, rsp, next) {
     req.session.counter = (req.session.counter || 0) + 1
     console.log(`Session counter: ${req.session.counter}`)
     next()
+}
+
+function serializeUserDeserializeUser(user, done) {
+    done(null, user)
+}
+
+function serializeUser(user, done) {
+    done(null, user)
 }
