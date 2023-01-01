@@ -40,6 +40,8 @@ app.set('view engine', 'hbs')
 app.set('views', viewsPath)
 hbs.registerPartials(path.join(viewsPath, 'partials'))
 
+app.use(cookieMiddleware)
+
 // Web API routes -------------------------------------------------------------------
 app.get('/groups', api.getGroups)
 app.get('/groups/:id', api.getGroup)
@@ -59,13 +61,14 @@ app.get('cmdb/groups/new/', site.getNewGroupForm)
 app.get('/cmdb/groups', site.getGroups)
 app.get('/cmdb/groups/:id', site.getGroup)
 app.post('/cmdb/groups', site.createGroup)
+app.post('/cmdb/groups/:id/delete', site.deleteGroup)
+app.post('/cmdb/groups/:id/update', site.updateGroup)
+app.get('/cmdb/groups/:id/update', site.getUpdateGroupForm)
 
 
-app.delete('/cmdb/groups/:id', site.deleteGroup)
-app.put('/cmdb/groups/:id', site.updateGroup)
+
 app.get('/cmdb/search', site.getMovies)
 app.get('/cmdb/search/:idMovie', site.getMovie)
-app.delete('/cmdb/groups/:id/:idMovie', site.deleteMovie)
 app.post('/cmdb/users', site.createUser)
 app.post('/cmdb/groups/:id/:idMovie', site.addMovie)
 
