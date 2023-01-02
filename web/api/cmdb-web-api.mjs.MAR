@@ -1,0 +1,124 @@
+import express from 'express'
+
+import handleError from './response-errors.mjs'
+
+export default function (services) {
+    const app = express()
+
+    app.get('/groups', handlerWrapper(getGroupsInternal))
+    app.get('/groups/:id', handlerWrapper(getGroupInternal))
+    app.delete('/groups/:id', handlerWrapper(deleteGroupInternal))
+    app.post('/groups', handlerWrapper(createGroupInternal))
+    app.put('/groups/:id', handlerWrapper(updateGroupInternal))
+    app.get('/search', handlerWrapper(getMoviesInternal))
+    app.get('/search/:idMovie', handlerWrapper(getMovieInternal))
+    app.delete('/groups/:id/:idMovie', handlerWrapper(deleteMovieInternal))
+    app.post('/users', handlerWrapper(createUserInternal))
+    app.post('/groups/:id/:idMovie', handlerWrapper(addMovieInternal))
+    
+    return app
+
+    function handlerWrapper(handler) {
+        return async function(req, rsp) {
+            //setUserToken(req)
+            try {
+                rsp.json(await handler(req, rsp))
+            } catch(e) {
+               const error = handleError(e) 
+               rsp.status(error.status).json(error.body)
+            }    
+        }
+    }
+
+    // internal functions -----------------------------------------------------------------
+    async function getGroupsInternal(req, rsp) {
+        console.log(`WebAPI-getGroups: token-${req.token}, q-${req.query.q}, skip-${req.query.skip}, limit-${req.query.limit}`)
+        rsp.status(200)
+        return services.getGroups(req.token, req.query.q, req.query.skip, req.query.limit)
+    }
+
+    async function getGroupInternal(req, rsp) {
+        const groupId = req.params.id
+        console.log(`WebAPI-getGroup: token-${req.token}, groupId-${groupId}}`)
+        rsp.status(200)
+        return services.getGroup(req.token, groupId)
+    }
+    
+    async function deleteGroupInternal(req, rsp) {
+        const groupId = req.params.id
+        const group = await services.deleteGroup(req.token, groupId)
+        console.log(`WebAPI-deleteGroup: token-${req.token}, groupId-${groupId}, group-${group}`)
+        rsp.status(201)
+        return {
+            status: `Group with id ${groupId} deleted with success`,
+            group: group
+        }
+    }
+
+    async function createGroupInternal(req, rsp) {
+        let newGroup = await services.createGroup(req.token, req.body)
+        rsp.status(201)
+        console.log(`WebAPI-createGroup: token-${req.token}, title-${req.body.title}, description-${req.body.description}`)
+        return {
+            status: `Group with id ${newGroup.id} created with success`,
+            group: newGroup
+        }
+    }
+
+    async function updateGroupInternal(req, rsp) {
+        const group = await services.updateGroup(req.token, req.params.id, req.body)
+        console.log(`WebAPI-updateGroup: token-${req.token}, groupId-${req.params.id}, body-${req.body}`)
+        rsp.status(201)
+        return {
+            status: `Group with id ${req.params.id} updated with success`,
+            group: group
+        }
+    }
+
+    async function getMoviesInternal(req, rsp) {
+        console.log(`WebAPI-getMovies: token-${req.token}, q-${req.query.q}, skip-${req.query.skip}, limit-${req.query.limit}`)
+        rsp.status(200)
+        return services.getMovies(req.token, req.query.q, req.query.skip, req.query.limit)
+    }
+
+    async function getMovieInternal(req, rsp) {
+        const idMovie = req.params.idMovie
+        console.log(`WebAPI-getMovie: token-${req.token}, movieId-${idMovie}`)
+        rsp.status(200)
+        return services.getMovie(req.token, idMovie)
+    }
+
+    async function addMovieInternal(req, rsp) {
+        const groupId = req.params.id
+        const movieId = req.params.idMovie
+        const movie = await services.addMovie(req.token, groupId, movieId)
+        console.log(`WebAPI-addMovie: token-${req.token}, groupId-${groupId}, movieId-${movieId}`)
+        rsp.status(201)
+        return {
+            status: `Movie with id ${movieId} from group with id ${groupId} added with success`,
+            movie: movie
+        }
+    }
+
+    async function deleteMovieInternal(req, rsp) {
+        const groupId = req.params.id
+        const movieId = req.params.idMovie
+        const movie = await services.deleteMovie(req.token, groupId, movieId)
+        console.log(`WebAPI-deleteMovie: token-${req.token}, groupId-${groupId}, movieId-${movieId}`)
+        rsp.status(201)
+        return {
+            status: `Movie with id ${movieId} from group with id ${groupId} deleted with success`,
+            movie: movie
+        }
+    }
+
+    async function createUserInternal(req, rsp) {
+        let newUser = await services.createUser(req.body.name)
+        console.log(`WebAPI-createUser: body-${req.body}`)
+        rsp.status(201);
+        return {
+            status: `User with name ${newUser.name} created with success`,
+            user: newUser
+        };
+    }
+}

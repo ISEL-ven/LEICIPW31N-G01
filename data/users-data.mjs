@@ -4,7 +4,7 @@
 import errors from '../errors.mjs'
 import crypto from 'crypto'
 
-let users = [{id: 0, name: 'ui', token: '8bf716e7-e3af-4343-93e0-9c6edb7b8005'}]
+let users = [{id: 0, name: 'test', token: '8bf716e7-e3af-4343-93e0-9c6edb7b8005'}]
 let nextUserId = 1
 
 export async function createUser(userName, token) {

@@ -1,9 +1,18 @@
-<p>
-    <h2>
-        <a href="/groups/{{this.id}}">${{this.title}}</a>
-    </h2>
-    <p>${{this.description}}</p>
-    <form action="/imdb/groups/{{id}}/delete" method="POST">
-        <input type="submit" value="Delete">
-    </form>
-</p>
+<div class="col">
+    <div class="card mb-3" style="max-width: 18rem;"">
+        <img src="/cmdb/public/images/movie.png" class="card-img-top" alt="movies-folder">
+        <div class="card-body">
+            <h5 class="card-title">{{this.title}}</h5>
+            <p class="card-descripton">{{this.description}}</p>
+            <p class="">Number of movies: {{this.numfilms}}</p>
+            <p class="">Total duration: {{this.duration}}</p>
+            <div class="d-grid gap-2 d-md-block">
+                <!--<button type="submit" class="btn btn-dark">Details</button>-->
+                <a href="/cmdb/groups/{{this.id}}" class="btn btn-dark">Details</a>
+                <form action="/cmdb/groups/{{id}}/delete" method="POST">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -17,8 +17,6 @@ import fileStore from 'session-file-store'
 import crypto from 'crypto'
 import serveFavicon from 'serve-favicon'
 
-//import passportlocal from 'passport-local'
-
 import * as groupsData from './data/cmdb-data-mem.mjs'
 import * as usersData from './data/users-data.mjs'
 import *  as elasticData from './data/cmdb-data-elastic.mjs'
@@ -88,19 +86,20 @@ app.post('/groups/:id/:idMovie', api.addMovie)
 app.use('/cmdb/public/', express.static(`${__dirname}/web/site/public/`))
 app.get('/', site.getRoot)
 app.get('/cmdb/', site.getHome)
-app.get('cmdb/groups/new/', site.getNewGroupForm)
+app.get('/cmdb/groups/new/', site.getNewGroupForm)
 app.get('/cmdb/groups', site.getGroups)
 app.get('/cmdb/groups/:id', site.getGroup)
 app.post('/cmdb/groups', site.createGroup)
 app.post('/cmdb/groups/:id/delete', site.deleteGroup)
 app.post('/cmdb/groups/:id/update', site.updateGroup)
 app.get('/cmdb/groups/:id/update', site.getUpdateGroupForm)
-app.get('/login', site.loginForm)
-app.post('/login', site.validateLogin)
-app.get('/register', site.registerForm)
-app.post('/register', site.createUser)
-app.get('/logout', site.logout)
-app.post('/logout', site.logout)
+//app.get('/login', site.loginForm)
+//app.post('/login', site.validateLogin)
+//app.get('/register', site.registerForm)
+//app.post('/register', site.createUser)
+//app.get('/logout', site.logout)
+//app.post('/logout', site.logout)
+app.get('/commingsoon', site.commingSoon)
 
 
 

@@ -1,0 +1,62 @@
+// Application Entry Point. 
+// Register all HTTP API routes and starts the server
+
+// imported external modules ----------------------------------------------------------------------
+import express from 'express'                   // web application framework
+import morgan from 'morgan'                     // HTTP request logger middleware
+//import passport from 'passport'                 // authentication middleware
+import swaggerUi from 'swagger-ui-express'      // auto-generated swagger-ui generated API docs
+import yaml from 'yamljs'                       // YAML 1.2 Parser & Encoder
+import cors from 'cors'                         // Cross-origin_resource_sharing middleware
+import url from 'url'                           // URL resolution and parsing
+import path from 'path'                         // NodeJS path
+import hbs from 'hbs'                           // template engine plugin for Handlebars
+import cookieParser from 'cookie-parser'        // parse HTTP request cookies
+//import session from 'express-session'           // session middleware
+//import fileStore from 'session-file-store'      // provisioning for storing session data in the session file
+//import crypto from 'crypto'                     // crypto standards
+import serveFavicon from 'serve-favicon'        // favicon serving middleware with caching
+
+// imported internal modules ----------------------------------------------------------------------
+import *  as elasticData from './data/cmdb-data-elastic.mjs'
+import * as groupsData from './data/cmdb-data-mem.mjs'
+import * as usersData from './data/users-data.mjs'
+import * as moviesData from './data/cmdb-movies-data.mjs'
+import servicesInit from './services/cmdb-services.mjs'
+import authInit from './web/auth.mjs'
+import apiInit from './web/api/cmdb-web-api.mjs'
+import siteInit from './web/site/cmdb-web-site.mjs'
+
+// global constants -------------------------------------------------------------------------------
+const PORT = 3000
+const swaggerDocument = yaml.load('./docs/cmdb-api.yaml')
+const services = servicesInit(groupsData, usersData, moviesData, elasticData)
+const api = apiInit(services)
+const site = siteInit(services)
+const auth = authInit(services)
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
+
+// App defenitions --------------------------------------------------------------------------------
+console.log("Start setting up server")
+let app = express()
+
+app.use(cors())
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+app.use(express.json())                         // handle request bodies with json format
+app.use(express.urlencoded({extended: false}))  // handle request bodies with url query format
+app.use(cookieParser())
+app.use(morgan('dev'))
+app.use(serveFavicon(`${__dirname}/web/site/public/images/favicon-32x32.png`))
+
+// View engine setup ------------------------------------------------------------------------------
+const viewsPath = path.join(__dirname, 'web', 'site', 'views')
+app.set('view engine', 'hbs')
+app.set('views', viewsPath)
+hbs.registerPartials(path.join(viewsPath, 'partials'))
+
+app.use(auth)
+app.use('/api',api)
+app.use('/cmdb',site)
+
+// Start App -----------------------------------------------------------------------
+app.listen(PORT, () => console.log(`Server listening at http://localhost:${PORT}\nEnd setting up server`))

@@ -10,6 +10,7 @@ import toHttpResponse from '../api/response-errors.mjs'  // TODO não usar aqui 
 
 const ROOT = '/cmdb/groups'
 const HOME = '/cmdb/'
+const HAMMERED_TOKEN = '8bf716e7-e3af-4343-93e0-9c6edb7b8005'
 
 class View {
     constructor(name, data) {
@@ -27,6 +28,7 @@ export default function (services) {
     return {
         getRoot: getRoot,
         getHome: getHome,
+        commingSoon: commingSoon,
         loginForm: loginForm,
         validateLogin: validateLogin,
         verifyAuthenticated: verifyAuthenticated,
@@ -46,6 +48,11 @@ export default function (services) {
         getMovie: handleRequest(getMovieInternal),
         deleteMovie: handleRequest(deleteMovieInternal),        
         addMovie: handleRequest(addMovieInternal)
+    }
+
+    async function commingSoon(req, rsp) {
+        return rsp.render('commingsoon')
+        //return new View('commingsoon',{})
     }
 
     async function getRoot(req, rsp) {
@@ -69,14 +76,19 @@ export default function (services) {
 
     async function getGroupsInternal(req, rsp) {
         console.log(req.session)
-        const groups = await services.getGroups(req.session.token, req.query.q, req.query.skip, req.query.limit)
+        //const groups = await services.getGroupsWeb(req.session.token, req.query.q, req.query.skip, req.query.limit)
+        const groups = await services.getGroupsWeb(HAMMERED_TOKEN, req.query.q, req.query.skip, req.query.limit)
         return new View('groups', { title: 'My playlists', groups: groups })
     }
 
     async function getGroupInternal(req, rsp) {
-        const groupId = req.params.id
-        const group = await services.getGroup(req.token, groupId)
-        return new View('group', group)
+        const groupId = req.params.id   
+        console.log(`GETGROUP INTERNAL ${groupId}`)     
+        //const group = await services.getGroup(req.token, groupId)
+        const group = await services.getGroup(HAMMERED_TOKEN, groupId)
+        console.log('DETAILS')
+        console.log(group)
+        return new View('groupdetail', group)
     }
 
     async function getNewGroupForm(req, rsp) {
@@ -85,16 +97,18 @@ export default function (services) {
 
     async function deleteGroupInternal(req, rsp) {
         const groupId = req.params.id
-        const group = await services.deleteGroup(req.token, groupId)
+        //const group = await services.deleteGroup(req.token, groupId)
+        const group = await services.deleteGroup(HAMMERED_TOKEN, groupId)
         rsp.redirect(ROOT)
     }
 
     async function createGroupInternal(req, rsp) {
-        console.log(req)
+        console.log(req.body)
         try {
-            const newGroup = await services.createGroup(req.session.user.token, 'test')
+            const newGroup = await services.createGroup(HAMMERED_TOKEN, req.body)
             //const newGroup = await services.createGroup(req.token, req.body)
-            rsp.redirect(`${ROOT}/${newGroup.id}`)
+            //rsp.redirect(`${ROOT}/${newGroup.id}`)
+            rsp.redirect(`${ROOT}`)
         } catch (e) {
             if (e.code == 1) {
                 return new View('newGroup', req.body)
@@ -166,24 +180,16 @@ export default function (services) {
     
     
     async function verifyAuthenticated(req, rsp, next) {
-        console.log("verifyAuthenticated", req.user)
-        if(req.user) {
-            console.log("$$$$$$$$$$$$$$$$$")
-            console.log(req.user)
+        return next()
+        /*if(req.user) {
             return next()
         }
-        console.log("#################")
-        rsp.redirect('/cmdb')
+        //rsp.redirect('/login')
+        loginForm(req, rsp)*/
     }
     
     async function logout(req, rsp, next) {
-        //req.logout((err) => { 
-        //    rsp.redirect('/cmdb/')
-    //})
-        req.logout(function(err) {
-            if (err) { return next(err) }
-            rsp.redirect('/cmdb/')
-        }) 
+        req.logout((err) => rsp.redirect('/cmdb/'))
     }
 
      // Auxiliary functions ----------------------------------------------------------------
@@ -192,11 +198,13 @@ export default function (services) {
         return async function (req, rsp) {
             //verifyAuthenticated(req, rsp, next)
             try {
+                console.log('##############################################')
                 let view = await handler(req, rsp)
                 if (view) {
                     rsp.render(view.name, view.data)
                 }                
             } catch (e) {
+                console.log('HANDLER ERROR ---------------------------------------------------------------')
                 const response = toHttpResponse(e)
                 rsp.status(response.status).json({ error: response.body })
                 console.log(e)

@@ -1,0 +1,10 @@
+<div>
+    <p>{{title}}</p>
+    <p>{{description}}</p>
+    <p>{{numMovies}} movies</p>
+    <p>{{totalDuration}} mins</p>
+    {{#each this.movies}}
+        {{> movieP}}
+    {{/each}}
+    <button class="btn-dark" href="#" type="submit" value="add movie">Add movie</button>
+</div>

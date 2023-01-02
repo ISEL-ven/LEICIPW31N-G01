@@ -6,33 +6,39 @@
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">      
-      {{#if user.name}}
+      {{!-- {{#if user.name}} --}}
       <li class="nav-item">
         <a class="nav-link" href="/cmdb/groups/">Playlists</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="/cmdb/groups/new/">Create Movieslist</a>
       </li>
-      <li class="nav-item dropdown">
+      <li class="nav-item" id="register">
+        <a class="nav-link" href="/commingsoon"><i class="bi-person"></i> Register</a>
+      </li>
+      <li class="nav-item" id="login">
+        <a class="nav-link" href="/commingsoon"><i class="bi-person-circle"></i> Login</a>
+      </li>
+      <!--<li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="bi-person-circle"></i>  {{user.name}}
+          <i class="bi-person-circle"></i>  {{!--{{user.name}}--}}
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a class="dropdown-item" href="/Logout">Logout</a>
+          <a class="dropdown-item" href="/commingsoon">Logout</a>
         </div>
-      </li>
+      </li>-->
       <form class="form-inline my-2 my-lg-0">
         <input class="form-control mr-sm-2" type="search" placeholder="Search movies" aria-label="Search">
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
       </form>
-      {{else}}
+     {{!-- {{else}}
       <li class="nav-item" id="register">
-        <a class="nav-link" href="/register"><i class="bi-person"></i> Register</a>
+        <a class="nav-link" href="/commingsoon"><i class="bi-person"></i> Register</a>
       </li>
       <li class="nav-item" id="login">
         <a class="nav-link" href="/login"><i class="bi-person-circle"></i> Login</a>
       </li>
-      {{/if}}
+      {{/if}}--}}
     </ul>
     
   </div>

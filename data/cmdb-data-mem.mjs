@@ -31,7 +31,8 @@ export async function deleteGroup(userId, groupId) {
 }
 
 export async function createGroup(userId, groupToCreate) {
-    console.log(`GroupsData-createGroup: groupToCreate-${groupToCreate}`)
+    console.log(groupToCreate)
+    //console.log(`GroupsData-createGroup: groupToCreate-${groupToCreate}`)
     let newGroup = {
         id: getNewId(), 
         title: groupToCreate.title,

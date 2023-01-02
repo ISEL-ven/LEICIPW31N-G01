@@ -24,6 +24,7 @@ export default function(groupsData, usersData, moviesData, elasticData) {
     return {
         getGroups: getGroups,             // groups from user
         getGroup: getGroup,              // especific group 
+        getGroupsWeb: getGroupsWeb,
         updateGroup: updateGroup,       // group name, etc
         deleteGroup: deleteGroup,      // remove group from user
         createGroup: createGroup,     // add new group to user
@@ -31,8 +32,24 @@ export default function(groupsData, usersData, moviesData, elasticData) {
         getMovie: getMovie,         // get especific movie
         deleteMovie: deleteMovie,  // remove movie from group
         addMovie: addMovie,       // add movie to group
-        createUser : createUser, // add user
-        createWebUser: createWebUser
+        //createUser : createUser, // add user
+        //createWebUser: createWebUser
+    }
+
+    async function getGroupsWeb(q, skip=0, limit=MAX_LIMIT) {
+        limit = Number(limit)
+        skip = Number(skip)
+        if (   isNaN(limit)
+            || isNaN(skip)
+            || skip > MAX_LIMIT
+            || limit > MAX_LIMIT
+            || (skip + limit) > MAX_LIMIT
+            || skip  < 0
+            || limit < 0
+            ) {
+                throw errors.INVALID_PARAMETER('skip or limit', `Skip and limit must be positive, less than ${MAX_LIMIT} and its sum must be less or equal to ${MAX_LIMIT}`)
+            }
+            return groupsData.getGroups(0, q, skip, limit)
     }
 
     async function getGroups(userToken, q, skip=0, limit=MAX_LIMIT) {
@@ -58,11 +75,16 @@ export default function(groupsData, usersData, moviesData, elasticData) {
     }
 
     async function getGroup(userToken, groupId) {
+        console.log('SERVICES')
+        console.log(userToken)
+        console.log(groupId)
         const user = await usersData.getUser(userToken)
+        console.log(user)
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
         const group = await groupsData.getGroup(user.id, groupId)
+        console.log(group)
         console.log(`Services-getGroup: userToken-${userToken}, groupId-${groupId}, group-${group}`)
         if (group) {
             return group
@@ -80,8 +102,9 @@ export default function(groupsData, usersData, moviesData, elasticData) {
     }
 
     async function createGroup(userToken, groupToCreate) {
+        console.log(groupToCreate)
         const user = await usersData.getUser(userToken)
-        console.log(`Services-createGroup: userToken-${userToken}, groupToCreate-${groupToCreate}, user-${user}`)
+        //console.log(`Services-createGroup: userToken-${userToken}, groupToCreate-${groupToCreate}, user-${user}`)
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
