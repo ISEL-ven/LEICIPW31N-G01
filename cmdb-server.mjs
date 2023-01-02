@@ -17,9 +17,11 @@ import fileStore from 'session-file-store'
 import crypto from 'crypto'
 import serveFavicon from 'serve-favicon'
 
+//import passportlocal from 'passport-local'
+
 import * as groupsData from './data/cmdb-data-mem.mjs'
 import * as usersData from './data/users-data.mjs'
-//import usersDataInit from './data/cmdb-data-elastic.mjs'
+import *  as elasticData from './data/cmdb-data-elastic.mjs'
 import * as moviesData from './data/cmdb-movies-data.mjs'
 import servicesInit from './services/cmdb-services.mjs'
 import apiInit from './web/api/cmdb-web-api.mjs'
@@ -28,7 +30,7 @@ import siteInit from './web/site/cmdb-web-site.mjs'
 // global constants ----------------------------------------------------------------
 const PORT = 3000
 const swaggerDocument = yaml.load('./docs/cmdb-api.yaml')
-const services = servicesInit(groupsData, usersData, moviesData)
+const services = servicesInit(groupsData, usersData, moviesData, elasticData)
 const api = apiInit(services)
 const site = siteInit(services)
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
@@ -54,11 +56,12 @@ app.use(session({
 }))
 
 // Passport initialization --------------------------------------------------------
+//app.use(passport.authenticate('session'))
 app.use(passport.session())
 app.use(passport.initialize())
 
-passport.serializeUser(serializeUserDeserializeUser)
-passport.deserializeUser(serializeUserDeserializeUser)
+//passport.serializeUser(serializeUserDeserializeUser)
+//passport.deserializeUser(serializeUserDeserializeUser)
 
 
 // View engine setup ---------------------------------------------------------------
@@ -119,10 +122,21 @@ function sessionMiddleware(req, rsp, next) {
     next()
 }
 
-function serializeUserDeserializeUser(user, done) {
+/*function serializeUserDeserializeUser(user, done) {
     done(null, user)
 }
 
 function serializeUser(user, done) {
     done(null, user)
-}
+}*/
+passport.serializeUser(function(user, cb) {
+    process.nextTick(function() {
+        cb(null, { id: user.id, username: user.username })
+    })
+})
+  
+passport.deserializeUser(function(user, cb) {
+    process.nextTick(function() {
+        return cb(null, user)
+    })
+})

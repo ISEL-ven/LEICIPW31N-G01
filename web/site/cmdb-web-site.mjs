@@ -34,7 +34,7 @@ export default function (services) {
         getGroups: handleRequest(getGroupsInternal),
         getGroup: handleRequest(getGroupInternal),
         getNewGroupForm: handleRequest(getNewGroupForm),
-        createGroup: handleRequest(createGroupInternal),
+        createGroup: createGroupInternal,
         deleteGroup: handleRequest(deleteGroupInternal),        
         updateGroup: handleRequest(updateGroupInternal),
         getUpdateGroupForm: handleRequest(getUpdateGroupForm),
@@ -90,8 +90,10 @@ export default function (services) {
     }
 
     async function createGroupInternal(req, rsp) {
+        console.log(req)
         try {
-            const newGroup = await services.createGroup(req.token, req.body)
+            const newGroup = await services.createGroup(req.session.user.token, 'test')
+            //const newGroup = await services.createGroup(req.token, req.body)
             rsp.redirect(`${ROOT}/${newGroup.id}`)
         } catch (e) {
             if (e.code == 1) {
@@ -127,6 +129,7 @@ export default function (services) {
         const user = await services.createWebUser(name, token)
         console.log(`createUserInternal: ${user.name}`)
         req.user = user
+        req.session[user] = user
         getHome(req, rsp)
     }
 
@@ -173,11 +176,14 @@ export default function (services) {
         rsp.redirect('/cmdb')
     }
     
-    async function logout(req, rsp) {
-    req.logout((err) => { 
-        rsp.redirect('/cmdb/')
-    })
-    
+    async function logout(req, rsp, next) {
+        //req.logout((err) => { 
+        //    rsp.redirect('/cmdb/')
+    //})
+        req.logout(function(err) {
+            if (err) { return next(err) }
+            rsp.redirect('/cmdb/')
+        }) 
     }
 
      // Auxiliary functions ----------------------------------------------------------------

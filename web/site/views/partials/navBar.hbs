@@ -5,16 +5,14 @@
   </button>
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
+    <ul class="navbar-nav mr-auto">      
+      {{#if user.name}}
       <li class="nav-item">
         <a class="nav-link" href="/cmdb/groups/">Playlists</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="/cmdb/groups/new/">Create Movieslist</a>
       </li>
-      <p>{{session.user}}</p>
-      {{#if user.name}}
-      <p>{{user.name}}</p>
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <i class="bi-person-circle"></i>  {{user.name}}

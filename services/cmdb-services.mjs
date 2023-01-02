@@ -3,7 +3,7 @@
 import {MAX_LIMIT} from './services-constants.mjs'
 import errors from '../errors.mjs'
 
-export default function(groupsData, usersData, moviesData) {
+export default function(groupsData, usersData, moviesData, elasticData) {
     if (!groupsData) {
         console.log('Services: groupsData is missing')
         throw errors.INVALID_PARAMETER('groupsData')
@@ -15,6 +15,10 @@ export default function(groupsData, usersData, moviesData) {
     if (!moviesData) {
         console.log('Services: moviesData is missing')
         throw errors.INVALID_PARAMETER('moviesData')
+    }
+    if (!elasticData) {
+        console.log('Services: elasticData is missing')
+        throw errors.INVALID_PARAMETER('elasticData')
     }
 
     return {
@@ -186,7 +190,12 @@ export default function(groupsData, usersData, moviesData) {
         if(token == undefined) {
             throw errors.INVALID_ARGUMENT("token")
         }
+        let user = {
+            name: name,
+            token: token
+        }
         return await usersData.createUser(name, token)
+        //return await elasticData.createUser(user)
     }
 }
 

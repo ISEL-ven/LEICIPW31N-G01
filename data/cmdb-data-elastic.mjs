@@ -89,7 +89,22 @@ export default function () {
     }
 
     async function createUser(user) {
-        console.log("createUser")
+        console.log("/n elastic - createUser/n")
+        const query ={
+            "script": {
+                "source": "ctx._source.users.add(params.newUser)",
+                "lang": "painless",
+                "params": {
+                    "newUser": {
+                        id: user.token, 
+                        name: user.name
+                    }
+                }
+            }
+          }
+        return(post(URI_MANAGER_USERS.create())
+            .then(post(URI_MANAGER_USERS.addTo(user), query)
+                .then( () => { return newUser })))
     }
 
     async function deleteGroup(id) {
