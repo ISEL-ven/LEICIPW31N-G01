@@ -4,7 +4,7 @@
 // import modules -----------------------------------------------------------------
 import express from 'express'
 import morgan from 'morgan'
-import passport, { serializeUser } from 'passport'
+import passport from 'passport'
 import swaggerUi from 'swagger-ui-express'
 import yaml from 'yamljs'
 import cors from 'cors'
@@ -14,9 +14,12 @@ import hbs from 'hbs'
 import cookieParser from 'cookie-parser'
 import session from 'express-session'
 import fileStore from 'session-file-store'
+import crypto from 'crypto'
+import serveFavicon from 'serve-favicon'
 
 import * as groupsData from './data/cmdb-data-mem.mjs'
 import * as usersData from './data/users-data.mjs'
+//import usersDataInit from './data/cmdb-data-elastic.mjs'
 import * as moviesData from './data/cmdb-movies-data.mjs'
 import servicesInit from './services/cmdb-services.mjs'
 import apiInit from './web/api/cmdb-web-api.mjs'
@@ -40,6 +43,7 @@ app.use(express.json())
 app.use(express.urlencoded({extended: false}))
 app.use(cookieParser())
 app.use(morgan('dev'))
+app.use(serveFavicon(`${__dirname}/web/site/public/images/favicon-32x32.png`))
 
 const FileStore = fileStore(session)
 app.use(session({
@@ -55,6 +59,7 @@ app.use(passport.initialize())
 
 passport.serializeUser(serializeUserDeserializeUser)
 passport.deserializeUser(serializeUserDeserializeUser)
+
 
 // View engine setup ---------------------------------------------------------------
 const viewsPath = path.join(__dirname, 'web', 'site', 'views')
@@ -77,8 +82,9 @@ app.post('/users', api.createUser)
 app.post('/groups/:id/:idMovie', api.addMovie)
 
 // Web site routes -----------------------------------------------------------------
-app.use('/cmdb/static', express.static(`${__dirname}./static-files/`))
+app.use('/cmdb/public/', express.static(`${__dirname}/web/site/public/`))
 app.get('/', site.getRoot)
+app.get('/cmdb/', site.getHome)
 app.get('cmdb/groups/new/', site.getNewGroupForm)
 app.get('/cmdb/groups', site.getGroups)
 app.get('/cmdb/groups/:id', site.getGroup)
@@ -86,12 +92,18 @@ app.post('/cmdb/groups', site.createGroup)
 app.post('/cmdb/groups/:id/delete', site.deleteGroup)
 app.post('/cmdb/groups/:id/update', site.updateGroup)
 app.get('/cmdb/groups/:id/update', site.getUpdateGroupForm)
+app.get('/login', site.loginForm)
+app.post('/login', site.validateLogin)
+app.get('/register', site.registerForm)
+app.post('/register', site.createUser)
+app.get('/logout', site.logout)
+app.post('/logout', site.logout)
+
 
 
 
 app.get('/cmdb/search', site.getMovies)
 app.get('/cmdb/search/:idMovie', site.getMovie)
-app.post('/cmdb/users', site.createUser)
 app.post('/cmdb/groups/:id/:idMovie', site.addMovie)
 
 // Start App -----------------------------------------------------------------------
@@ -99,8 +111,11 @@ app.listen(PORT, () => console.log(`Server listening at http://localhost:${PORT}
 
 // Route handling functions ---------------------------------------------------------
 function sessionMiddleware(req, rsp, next) {
-    req.session.counter = (req.session.counter || 0) + 1
-    console.log(`Session counter: ${req.session.counter}`)
+    req.session.token = req.session.token || crypto.randomUUID()
+    //req.session.counter = (req.session.counter || 0) + 1
+    //console.log(`Session counter: ${req.session.counter}`)
+
+    //console.log(`Session token: ${req.session.token}`)
     next()
 }
 

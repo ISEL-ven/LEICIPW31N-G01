@@ -6,14 +6,10 @@
 
 import errors from "../../errors.mjs"
 
-
-//import * as cmdbServices from  '../../services/cmdb-services.mjs' já estava comentado
-
 import toHttpResponse from '../api/response-errors.mjs'  // TODO não usar aqui os errors da API
 
-// TODO: token martelado - apagar!!!!
-const TOKEN = '8bf716e7-e3af-4343-93e0-9c6edb7b8005'
 const ROOT = '/cmdb/groups'
+const HOME = '/cmdb/'
 
 class View {
     constructor(name, data) {
@@ -30,29 +26,51 @@ export default function (services) {
     }
     return {
         getRoot: getRoot,
+        getHome: getHome,
+        loginForm: loginForm,
+        validateLogin: validateLogin,
+        verifyAuthenticated: verifyAuthenticated,
+        logout: logout,
         getGroups: handleRequest(getGroupsInternal),
         getGroup: handleRequest(getGroupInternal),
-        getNewGroupForm: getNewGroupForm,
+        getNewGroupForm: handleRequest(getNewGroupForm),
         createGroup: handleRequest(createGroupInternal),
         deleteGroup: handleRequest(deleteGroupInternal),        
         updateGroup: handleRequest(updateGroupInternal),
-        getUpdateGroupForm: getUpdateGroupForm,
+        getUpdateGroupForm: handleRequest(getUpdateGroupForm),
+        registerForm: registerForm,
+        createUser: createUserInternal,
 
 
         getMovies: handleRequest(getMoviesInternal),
         getMovie: handleRequest(getMovieInternal),
-        deleteMovie: handleRequest(deleteMovieInternal),
-        createUser: handleRequest(createUserInternal),
+        deleteMovie: handleRequest(deleteMovieInternal),        
         addMovie: handleRequest(addMovieInternal)
     }
 
     async function getRoot(req, rsp) {
-        rsp.redirect(ROOT)
+        rsp.redirect(HOME)
+    }
+
+    async function getHome (req, rsp) {
+        let user = {
+            id: undefined,
+            name: undefined,
+            token: undefined
+        }
+        if (req.user != undefined){
+            user.id = req.user.id
+            user.name = req.user.name
+            user.token = req.user.token
+        }
+        
+        rsp.render('home', {user: user})
     }
 
     async function getGroupsInternal(req, rsp) {
-        const groups = await services.getGroups(req.token, req.query.q, req.query.skip, req.query.limit)
-        return new View('groups', { title: 'All groups', groups: groups })
+        console.log(req.session)
+        const groups = await services.getGroups(req.session.token, req.query.q, req.query.skip, req.query.limit)
+        return new View('groups', { title: 'My playlists', groups: groups })
     }
 
     async function getGroupInternal(req, rsp) {
@@ -84,7 +102,7 @@ export default function (services) {
     }
 
     async function getUpdateGroupForm(req, rsp) {
-        
+
     }
 
     async function updateGroupInternal(req, rsp) {
@@ -104,22 +122,72 @@ export default function (services) {
     }
 
     async function createUserInternal(req, rsp) {
-        // TODO
+        const name = req.body.username
+        const token = req.session.token
+        const user = await services.createWebUser(name, token)
+        console.log(`createUserInternal: ${user.name}`)
+        req.user = user
+        getHome(req, rsp)
     }
 
     async function addMovieInternal(req, rsp) {
         // TODO
     }
 
+    async function loginForm(req, rsp) {
+        rsp.render('login')      
+    }
+
+    async function registerForm(req, rsp) {
+        rsp.render('register')      
+    }
+      
+      
+    async function validateLogin(req, rsp) {
+        console.log("validateLogin")
+        if(validateUser(req.body.username, req.body.password)) {
+            const user = {
+                name: req.body.username,
+                groups: req.body.groups,
+                dummy: "dummy property on user"
+            }
+            console.log(user)
+            req.login(user, () => rsp.redirect('/cmdb/'))
+        }
+        
+        async function validateUser(username, password) { 
+            // TODO #######################################
+            return true 
+        }
+    }
+    
+    
+    async function verifyAuthenticated(req, rsp, next) {
+        console.log("verifyAuthenticated", req.user)
+        if(req.user) {
+            console.log("$$$$$$$$$$$$$$$$$")
+            console.log(req.user)
+            return next()
+        }
+        console.log("#################")
+        rsp.redirect('/cmdb')
+    }
+    
+    async function logout(req, rsp) {
+    req.logout((err) => { 
+        rsp.redirect('/cmdb/')
+    })
+    
+    }
+
      // Auxiliary functions ----------------------------------------------------------------
      function handleRequest(handler) {
+        
         return async function (req, rsp) {
-            req.token = TOKEN
-               
+            //verifyAuthenticated(req, rsp, next)
             try {
                 let view = await handler(req, rsp)
                 if (view) {
-                    console.log('view')
                     rsp.render(view.name, view.data)
                 }                
             } catch (e) {

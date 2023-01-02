@@ -27,7 +27,8 @@ export default function(groupsData, usersData, moviesData) {
         getMovie: getMovie,         // get especific movie
         deleteMovie: deleteMovie,  // remove movie from group
         addMovie: addMovie,       // add movie to group
-        createUser : createUser  // add user
+        createUser : createUser, // add user
+        createWebUser: createWebUser
     }
 
     async function getGroups(userToken, q, skip=0, limit=MAX_LIMIT) {
@@ -170,11 +171,22 @@ export default function(groupsData, usersData, moviesData) {
     }
 
     async function createUser(name){
-        console.log(`Services-createUser: userName-${name}`)
+        console.log(`Services-createUser: userName ${name}`)
         if(name == undefined) {
             throw errors.INVALID_ARGUMENT("name")
         }
         return await usersData.createUser(name)
+    }
+
+    async function createWebUser(name, token){
+        console.log(`Services-createUser: userName ${name}, token: ${token}`)
+        if(name == undefined) {
+            throw errors.INVALID_ARGUMENT("name")
+        }
+        if(token == undefined) {
+            throw errors.INVALID_ARGUMENT("token")
+        }
+        return await usersData.createUser(name, token)
     }
 }
 
