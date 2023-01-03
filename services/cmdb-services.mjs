@@ -32,6 +32,7 @@ export default function(groupsData, usersData, moviesData, elasticData) {
         getMovie: getMovie,         // get especific movie
         deleteMovie: deleteMovie,  // remove movie from group
         addMovie: addMovie,       // add movie to group
+        getMoviesByName: getMoviesByName
         //createUser : createUser, // add user
         //createWebUser: createWebUser
     }
@@ -154,6 +155,29 @@ export default function(groupsData, usersData, moviesData, elasticData) {
         return await moviesData.search(user.id, q, skip, limit)
     }
 
+    async function getMoviesByName(userToken, q, skip=0, limit=MAX_LIMIT) {
+        console.log(`Services-getMovies: userToken-${userToken}, q-${q}, skip-${skip}, limit-${limit}`)
+        limit = Number(limit)
+        skip = Number(skip)
+        if (   isNaN(limit)
+            || isNaN(skip)
+            || skip > MAX_LIMIT
+            || limit > MAX_LIMIT
+            || (skip + limit) > MAX_LIMIT
+            || skip  < 0
+            || limit < 0
+            ) {
+                throw errors.INVALID_PARAMETER('skip or limit', `Skip and limit must be positive, less than ${MAX_LIMIT} and its sum must be less or equal to ${MAX_LIMIT}`)
+        }
+
+        const user = await usersData.getUser(userToken)
+        if (!user) {
+            throw errors.USER_NOT_FOUND()
+        }
+        return await moviesData.search(user.id, q, skip, limit)
+    }
+
+
     async function getMovie(userToken, movieId) {
         const user = await usersData.getUser(userToken)
         if (!user) {
@@ -194,7 +218,7 @@ export default function(groupsData, usersData, moviesData, elasticData) {
             throw errors.NOT_FOUND(`Group ${groupId}`)
         }
         console.log(`Services-addMovie: userToken-${userToken}, groupId-${groupId}, movieId-${movieId}, user-${user}, group-${group}`)
-        return groupsData.addMovie(user.id, groupId, movieId)
+        return await groupsData.addMovie(user.id, groupId, movieId)
     }
 
     async function createUser(name){

@@ -45,7 +45,7 @@ export async function getMovieById(id){
 // Fuctions that use IMDB API - external ----------------------------------------------------
 async function top250moviesExternal(quantity){
     console.log(`MoviesData-top250: search in external IMDB, quantity-${quantity}`)
-    const movies = fetch(IMDB_URL+'top250movies'+IMDB_API)
+    const movies = await fetch(IMDB_URL+'top250movies'+IMDB_API)
     checkError(movies.errorMessage)
     movies.array.forEach(element => {
         cache.items.push(element)
@@ -54,12 +54,14 @@ async function top250moviesExternal(quantity){
 }
 
 async function nameSearchExternal(name, quantity) {
+    return cache.items.slice(0, 6)
     console.log(`MoviesData-searchByName: search in external IMDB, name-${name},  quantity-${quantity}`)
-    const movies = fetch(IMDB_URL+'SearchMovie'+IMDB_API+'/${name}')
-    
+    const rsp = await fetch(`${IMDB_URL}SearchMovie${IMDB_API}/${name}`)
+    const body = await rsp.text()
+    const movies = JSON.parse(body)
     checkError(movies.errorMessage)
     const results = movies.results
-    if (results.length < 1) {
+    if (results == undefined) {
         throw errors.NO_RESULTS(name)
     }
     results.forEach(element => {

@@ -93,6 +93,8 @@ app.post('/cmdb/groups', site.createGroup)
 app.post('/cmdb/groups/:id/delete', site.deleteGroup)
 app.post('/cmdb/groups/:id/update', site.updateGroup)
 app.get('/cmdb/groups/:id/update', site.getUpdateGroupForm)
+app.post('/cmdb/groups/:id/:idMovie', site.addMovie)
+app.post('/cmdb/groups/:id/:idMovie/delete', site.deleteMovie)
 //app.get('/login', site.loginForm)
 //app.post('/login', site.validateLogin)
 //app.get('/register', site.registerForm)
@@ -101,12 +103,9 @@ app.get('/cmdb/groups/:id/update', site.getUpdateGroupForm)
 //app.post('/logout', site.logout)
 app.get('/commingsoon', site.commingSoon)
 
-
-
-
 app.get('/cmdb/search', site.getMovies)
 app.get('/cmdb/search/:idMovie', site.getMovie)
-app.post('/cmdb/groups/:id/:idMovie', site.addMovie)
+
 
 // Start App -----------------------------------------------------------------------
 app.listen(PORT, () => console.log(`Server listening at http://localhost:${PORT}\nEnd setting up server`))

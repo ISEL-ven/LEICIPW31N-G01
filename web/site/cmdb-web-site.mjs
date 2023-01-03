@@ -42,17 +42,16 @@ export default function (services) {
         getUpdateGroupForm: handleRequest(getUpdateGroupForm),
         registerForm: registerForm,
         createUser: createUserInternal,
-
-
-        getMovies: handleRequest(getMoviesInternal),
         getMovie: handleRequest(getMovieInternal),
-        deleteMovie: handleRequest(deleteMovieInternal),        
-        addMovie: handleRequest(addMovieInternal)
+        addMovie: addMovieInternal,  // FALTA PASSAR PELO HANDLER
+        deleteMovie: deleteMovieInternal, // FALTA PASSAR PELO HANDLER
+
+        getMovies: handleRequest(getMoviesInternal),        
+        
     }
 
     async function commingSoon(req, rsp) {
         return rsp.render('commingsoon')
-        //return new View('commingsoon',{})
     }
 
     async function getRoot(req, rsp) {
@@ -75,19 +74,15 @@ export default function (services) {
     }
 
     async function getGroupsInternal(req, rsp) {
-        console.log(req.session)
         //const groups = await services.getGroupsWeb(req.session.token, req.query.q, req.query.skip, req.query.limit)
         const groups = await services.getGroupsWeb(HAMMERED_TOKEN, req.query.q, req.query.skip, req.query.limit)
         return new View('groups', { title: 'My playlists', groups: groups })
     }
 
     async function getGroupInternal(req, rsp) {
-        const groupId = req.params.id   
-        console.log(`GETGROUP INTERNAL ${groupId}`)     
+        const groupId = req.params.id
         //const group = await services.getGroup(req.token, groupId)
         const group = await services.getGroup(HAMMERED_TOKEN, groupId)
-        console.log('DETAILS')
-        console.log(group)
         return new View('groupdetail', group)
     }
 
@@ -126,7 +121,11 @@ export default function (services) {
     }
 
     async function getMoviesInternal(req, rsp) {
-        // TODO
+        console.log(`SEARCH MOVIES -> ${req.query}`)
+        const groups = await services.getGroups(HAMMERED_TOKEN)
+        const movies = await services.getMoviesByName(HAMMERED_TOKEN, req.query.q, req.query.skip, req.query.limit)      
+        movies.map(x => x.groups = {groups})
+        rsp.render('movies', {movies: movies})
     }
 
     async function getMovieInternal(req, rsp) {
@@ -134,7 +133,11 @@ export default function (services) {
     }
 
     async function deleteMovieInternal(req, rsp) {
-        // TODO
+        const userToken = HAMMERED_TOKEN
+        const groupId = req.params.id
+        const movieId = req.params.idMovie
+        const deleted = await services.deleteMovie(userToken, groupId, movieId)
+        return new View('groupdetail', groupId)
     }
 
     async function createUserInternal(req, rsp) {
@@ -148,6 +151,12 @@ export default function (services) {
     }
 
     async function addMovieInternal(req, rsp) {
+        const userToken = HAMMERED_TOKEN
+        const groupId = req.params.id
+        const movieId = req.params.idMovie
+        const movie = await services.addMovie(userToken, groupId, movieId)
+
+        //getHome(req, rsp)
         // TODO
     }
 

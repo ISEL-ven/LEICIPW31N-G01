@@ -1,0 +1,24 @@
+<div class="col">
+    <div class="card mb-3" style="max-width: 18rem;">
+        <img src="{{this.image}}" class="card-img-top" alt="movies-folder">
+        <div class="card-body">
+            <h5 class="card-title">{{this.title}}</h5>
+            <div class="d-grid gap-2 d-md-block">
+                <div class="btn-group">
+                    <button class="btn btn-secondary btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Playlists
+                    </button>
+                    <ul class="dropdown-menu">
+                        {{#each this.groups.groups}}
+                            <form action="/cmdb/groups/{{this.id}}/{{../id}}" method="POST">
+                                <li><a class="dropdown-item"></a>{{this.title}}
+                                    <button type="submit" class="btn btn-dark">Add</button>
+                                </li>
+                            </form>
+                        {{/each}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
