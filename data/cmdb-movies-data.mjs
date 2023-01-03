@@ -54,7 +54,7 @@ async function top250moviesExternal(quantity){
 }
 
 async function nameSearchExternal(name, quantity) {
-    return cache.items.slice(0, 6)
+    //return cache.items.slice(0, 6)  // to use internal cache movies
     console.log(`MoviesData-searchByName: search in external IMDB, name-${name},  quantity-${quantity}`)
     const rsp = await fetch(`${IMDB_URL}SearchMovie${IMDB_API}/${name}`)
     const body = await rsp.text()
