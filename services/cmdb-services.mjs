@@ -3,7 +3,7 @@
 import {MAX_LIMIT} from './services-constants.mjs'
 import errors from '../errors.mjs'
 
-export default function(groupsData, usersData, moviesData, elasticData) {
+export default function(groupsData, usersData, moviesData) {
     if (!groupsData) {
         console.log('Services: groupsData is missing')
         throw errors.INVALID_PARAMETER('groupsData')
@@ -16,10 +16,10 @@ export default function(groupsData, usersData, moviesData, elasticData) {
         console.log('Services: moviesData is missing')
         throw errors.INVALID_PARAMETER('moviesData')
     }
-    if (!elasticData) {
-        console.log('Services: elasticData is missing')
-        throw errors.INVALID_PARAMETER('elasticData')
-    }
+    // if (!elasticData) {
+    //     console.log('Services: elasticData is missing')
+    //     throw errors.INVALID_PARAMETER('elasticData')
+    // }
 
     return {
         getGroups: getGroups,             // groups from user
@@ -84,7 +84,7 @@ export default function(groupsData, usersData, moviesData, elasticData) {
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
-        const group = await groupsData.getGroup(user.id, groupId)
+        const group = await groupsData.getDetailsFromGroup(groupId)
         console.log(group)
         console.log(`Services-getGroup: userToken-${userToken}, groupId-${groupId}, group-${group}`)
         if (group) {
@@ -99,7 +99,7 @@ export default function(groupsData, usersData, moviesData, elasticData) {
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
-        return groupsData.deleteGroup(user.id, groupId)
+        return groupsData.deleteGroup(groupId)
     }
 
     async function createGroup(userToken, groupToCreate) {
@@ -196,7 +196,7 @@ export default function(groupsData, usersData, moviesData, elasticData) {
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
-        const group = await groupsData.getGroup(user.id, groupId)
+        const group = await groupsData.getDetailsFromGroup(groupId)
         if (!group) {
             throw errors.NOT_FOUND(`Group ${groupId}`)
         }
@@ -213,7 +213,7 @@ export default function(groupsData, usersData, moviesData, elasticData) {
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
-        const group = await groupsData.getGroup(user.id, groupId)
+        const group = await groupsData.getDetailsFromGroup(groupId)
         if (!group) {
             throw errors.NOT_FOUND(`Group ${groupId}`)
         }

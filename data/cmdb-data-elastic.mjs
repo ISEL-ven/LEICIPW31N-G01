@@ -1,5 +1,7 @@
-import {get, post} from './fetch-wrapper.mjs'
+import {get, post,del} from './fetch-wrapper.mjs'
 import uriManager from './elastic-constants.mjs'
+import {getMovieById, getMovieByIdExternal} from './cmdb-movies-data.mjs'
+
 
 export default function () {
     const INDEX_NAME_GROUPS = 'groups'
@@ -30,7 +32,7 @@ export default function () {
               }
             }
           }
-        return post(URI_MANAGER_GROUPS.getAll(), query)
+        return get(URI_MANAGER_GROUPS.getAll(), query)
             .then(body => body.hits.hits.map(createGroupFromElastic))
 
     }
@@ -48,7 +50,7 @@ export default function () {
               }
             }
           }
-          return post(URI_MANAGER_USERS.getAll(), query)
+          return get(URI_MANAGER_USERS.getAll(), query)
             .then(body => body.hits.hits.map(createUserFromElastic)[0])
     }
 
@@ -58,14 +60,24 @@ export default function () {
             
     }*/
 
-    async function createGroup(group) {
-        const newGroup = Object.assign(group)
+    async function createGroup(userID,groupToCreate) {
+        console.log("createGroup_____elastic")
+        let newGroup = {
+            title: groupToCreate.title,
+            description: groupToCreate.description,
+            userId: userID,
+            totalDuration: 0,
+            numMovies: 0,
+            movies: []
+        }
         return post(URI_MANAGER_GROUPS.create(), newGroup)
             .then(body => { newGroup.id = body._id; return newGroup })
     }
 
-    async function addMovie(movie) {
-        const newMovie = Object.assign(movie)
+    async function addMovie(userID, groupId, movieId) {
+        console.log("movie")
+        const movie = await getMovieById(movieId)  
+        console.log(movie)  
         const query ={
             "script": {
                 "source": "ctx._source.movies.add(params.newMovie)",
@@ -80,8 +92,8 @@ export default function () {
                 }
             }
           }
-        return post(URI_MANAGER_GROUPS.addTo(newMovie.groupId), query)
-            .then( () => {  return newMovie })
+        return post(URI_MANAGER_GROUPS.addTo(groupId), query)
+            .then( () => {  return movie })
     }
 
     async function updateGroup(group) {
@@ -108,6 +120,8 @@ export default function () {
     }
 
     async function deleteGroup(id) {
+        console.log("id ")
+        console.log(id)
         return del(URI_MANAGER_GROUPS.delete(id), )
             .then(body => body._id)
     }

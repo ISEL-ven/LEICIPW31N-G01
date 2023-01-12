@@ -19,7 +19,7 @@ import serveFavicon from 'serve-favicon'
 
 import * as groupsData from './data/cmdb-data-mem.mjs'
 import * as usersData from './data/users-data.mjs'
-import *  as elasticData from './data/cmdb-data-elastic.mjs'
+import elasticData from './data/cmdb-data-elastic.mjs'
 import * as moviesData from './data/cmdb-movies-data.mjs'
 import servicesInit from './services/cmdb-services.mjs'
 import apiInit from './web/api/cmdb-web-api.mjs'
@@ -28,7 +28,7 @@ import siteInit from './web/site/cmdb-web-site.mjs'
 // global constants ----------------------------------------------------------------
 const PORT = 3000
 const swaggerDocument = yaml.load('./docs/cmdb-api.yaml')
-const services = servicesInit(groupsData, usersData, moviesData, elasticData)
+const services = servicesInit(elasticData(), usersData, moviesData)
 const api = apiInit(services)
 const site = siteInit(services)
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))

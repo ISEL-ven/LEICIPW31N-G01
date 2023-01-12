@@ -76,6 +76,8 @@ export default function (services) {
     async function getGroupsInternal(req, rsp) {
         //const groups = await services.getGroupsWeb(req.session.token, req.query.q, req.query.skip, req.query.limit)
         const groups = await services.getGroupsWeb(HAMMERED_TOKEN, req.query.q, req.query.skip, req.query.limit)
+        console.log("getGroupsInternal");
+        console.log(groups);
         return new View('groups', { title: 'My playlists', groups: groups })
     }
 
@@ -83,6 +85,8 @@ export default function (services) {
         const groupId = req.params.id
         //const group = await services.getGroup(req.token, groupId)
         const group = await services.getGroup(HAMMERED_TOKEN, groupId)
+        console.log("getGroupInternal");
+        console.log(group);
         return new View('groupdetail', group)
     }
 
