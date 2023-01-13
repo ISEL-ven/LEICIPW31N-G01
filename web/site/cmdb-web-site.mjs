@@ -4,6 +4,7 @@
 //  - Invoque the corresponding operation on services
 //  - Generate the response in HTML format
 
+import movies from "../../data/cache/movies.mjs"
 import errors from "../../errors.mjs"
 
 import toHttpResponse from '../api/response-errors.mjs'  // TODO não usar aqui os errors da API
@@ -42,7 +43,8 @@ export default function (services) {
         getUpdateGroupForm: handleRequest(getUpdateGroupForm),
         registerForm: registerForm,
         createUser: createUserInternal,
-        getMovie: handleRequest(getMovieInternal),
+        getMovie: handleRequest(getMoviesInternal),
+        getMovieDetails : getMovieDetailsInternal,
         addMovie: addMovieInternal,  // FALTA PASSAR PELO HANDLER
         deleteMovie: deleteMovieInternal, // FALTA PASSAR PELO HANDLER
 
@@ -134,7 +136,13 @@ export default function (services) {
         rsp.render('movies', {movies: movies})
     }
 
-    async function getMovieInternal(req, rsp) {
+    async function getMovieDetailsInternal(req, rsp) {
+       
+        const idMovie =req.params.id
+        const movie = await services.getMovieDetails(HAMMERED_TOKEN,idMovie)
+        console.log(                            "_MOOOOOVIEEEEEEEEE_________")
+        console.log(movie)
+        rsp.render("movie-detail", movie)
         // TODO
     }
 
@@ -143,8 +151,8 @@ export default function (services) {
         const groupId = req.params.id
         const movieId = req.params.idMovie
         const groupUpdated = await services.deleteMovie(userToken, groupId, movieId)
-        console.log ("FINALLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL")
-        console.log (groupUpdated)
+        // console.log ("FINALLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL")
+        // console.log (groupUpdated)
         //return new View('groupdetail', groupUpdated)
         rsp.render(`groupdetail`, groupUpdated)
     }
@@ -160,12 +168,14 @@ export default function (services) {
     }
 
     async function addMovieInternal(req, rsp) {
+        //console.log(req)
         const userToken = HAMMERED_TOKEN
         const groupId = req.params.id
         const movieId = req.params.idMovie
         const movie = await services.addMovie(userToken, groupId, movieId)
+        //todo
         getHome(req, rsp)
-        // TODO
+        
     }
 
     async function loginForm(req, rsp) {

@@ -1,16 +1,19 @@
 <div>
     <p>{{title}}</p>
     <p>{{description}}</p>
-    <p>number of movies: {{numMovies}}</p>
-    <p>Total duration: {{totalDuration}} mins</p>
-    <p>Movies -------------------- </p>
+    <p><b>Number of movies:</b> {{numMovies}}</p>
+    <p><b>Total duration:</b> {{totalDuration}} mins</p>
+    <p><b>------------------ Movies ------------------</b> </p>
     {{#each this.movies}}
     <form action="/cmdb/groups/{{../id}}/{{id}}/delete" method="POST">
         <li><a class="dropdown-item"></a>
-            <p>{{this.title}} - Duration: {{this.runtimeMins}}mins
-                <button type="submit" class="btn btn-dark">Remove</button>
+            <p><b>{{this.title}}</b> - <b> Duration: </b>{{this.runtimeMins}}mins
+                <button type="submit" class="btn btn-danger">Remove</button>
+                <a href="/cmdb/movies/{{id}}"><button type="button" class="btn btn-dark">Details</button></a>
             </p>
         </li>
-    </form>        
+    </form>       
     {{/each}}
+    <a href="/cmdb/groups/{{id}}/edit"><button type="button" class="btn btn-success">Edit List</button></a>
 </div>
+

@@ -32,7 +32,8 @@ export default function(groupsData, usersData, moviesData) {
         getMovie: getMovie,         // get especific movie
         deleteMovie: deleteMovie,  // remove movie from group
         addMovie: addMovie,       // add movie to group
-        getMoviesByName: getMoviesByName
+        getMoviesByName: getMoviesByName,
+        getMovieDetails: getMovieDetails
         //createUser : createUser, // add user
         //createWebUser: createWebUser
     }
@@ -185,6 +186,19 @@ export default function(groupsData, usersData, moviesData) {
         }
         const movie = await moviesData.getMovieById(movieId)
         console.log(`Services-getMovie: userToken-${userToken}, movieId-${movieId}, user-${user}, movie-${movie}`)
+        if (movie) {
+            return movie
+        }
+        throw errors.NOT_FOUND(`Movie ${movieId}`)
+    }
+
+    async function getMovieDetails(userToken, movieId) {
+        const user = await usersData.getUser(userToken)
+        if (!user) {
+            throw errors.USER_NOT_FOUND()
+        }
+        const movie = await moviesData.getMovieById(movieId)
+        console.log(`Services-getMovieDetails: userToken-${userToken}, movieId-${movieId}, user-${user}, movie-${movie}`)
         if (movie) {
             return movie
         }
