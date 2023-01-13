@@ -6,8 +6,8 @@ export default function(index) {
         getAll: () => `${URI}${index}/_search`,
         get: (id) => `${URI}${index}/_doc/${id}`,
         create: () => `${URI}${index}/_doc/?refresh=wait_for`,
-        addTo: (id) => `${URI}${index}/_update/${id}?refresh=wait_for`,
-        update: (id) => `${URI}${index}/_doc/${id}?refresh=wait_for`,
+        addTo: (id) => `${URI}${index}/_doc/${id}?refresh=wait_for`,     
+        update: (id) => `${URI}${index}/_update/${id}?refresh=wait_for`, //_update replaced by _doc?
         delete: (id) => `${URI}${index}/_doc/${id}?refresh=wait_for`
     }
 }

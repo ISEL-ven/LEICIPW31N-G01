@@ -1,4 +1,4 @@
-import {get, post,del} from './fetch-wrapper.mjs'
+import {get, post, del, put} from './fetch-wrapper.mjs'
 import uriManager from './elastic-constants.mjs'
 import {getMovieById, getMovieByIdExternal} from './cmdb-movies-data.mjs'
 
@@ -61,7 +61,7 @@ export default function () {
     }*/
 
     async function createGroup(userID,groupToCreate) {
-        console.log("createGroup_____elastic")
+        //console.log("createGroup_____elastic")
         let newGroup = {
             title: groupToCreate.title,
             description: groupToCreate.description,
@@ -73,35 +73,35 @@ export default function () {
         return post(URI_MANAGER_GROUPS.create(), newGroup)
             .then(body => { newGroup.id = body._id; return newGroup })
     }
-
+    
     async function addMovie(userID, groupId, movieId) {
-        console.log("movie")
-        const movie = await getMovieById(movieId)  
-        console.log(movie)  
-        const query ={
-            "script": {
-                "source": "ctx._source.movies.add(params.newMovie)",
-                "lang": "painless",
-                "params": {
-                    "newMovie": {
-                        id: movie.id, 
-                        name: movie.name, 
-                        image: movie.image, 
-                        runTimeMins: movie.runTimeMins
-                    }
-                }
-            }
-          }
-        return post(URI_MANAGER_GROUPS.addTo(groupId), query)
-            .then( () => {  return movie })
+        const movieComplete = await getMovieById(movieId)
+        const movieInfo = await getMovieByIdExternal(movieId)
+        let duration = parseInt(movieInfo.runtimeMins)
+        if (duration == null || isNaN(duration)) duration = 0       //if duration is null or Nan it is set to zero
+        const movie = {
+            id: movieComplete.id,
+            title: movieComplete.title,
+            image: movieComplete.image,
+            description: movieComplete.description,
+            runtimeMins: duration,
+            director: movieInfo.directors,
+            actors: movieInfo.actorList,
+        }
+        const group = await getDetailsFromGroup(groupId)    //gets movie from elastic database
+        group.totalDuration += movie.runtimeMins
+        group.numMovies++
+        group.movies.push(movie)
+        return put(URI_MANAGER_GROUPS.addTo(groupId), group)
+            .then( () => { return movie })
     }
 
     async function updateGroup(group) {
-        console.log("updateGroup")
+       // console.log("updateGroup")
     }
 
     async function createUser(user) {
-        console.log("/n elastic - createUser/n")
+        //console.log("/n elastic - createUser/n")
         const query ={
             "script": {
                 "source": "ctx._source.users.add(params.newUser)",
@@ -120,16 +120,31 @@ export default function () {
     }
 
     async function deleteGroup(id) {
-        console.log("id ")
-        console.log(id)
+        // console.log("id ")
+        // console.log(id)
         return del(URI_MANAGER_GROUPS.delete(id), )
             .then(body => body._id)
     }
 
-    async function deleteMovie(id, movie) {
-        return del(URI_MANAGER_MOVIES.delete(movie), )
-            .then(body => body._id)
-    }
+    async function deleteMovie(userId, groupId, movieId) {
+        let group = await getDetailsFromGroup(groupId)    //gets movie from elastic database
+        const allMovies = group.movies
+        const movieToRemove = allMovies.find((it) => { return it.id == movieId})
+        //console.log("                                          MovieToRemove...THIS IS")
+        //console.log(movieToRemove)
+            group.totalDuration -= movieToRemove.runtimeMins
+            group.numMovies--
+            group.movies.splice(allMovies.indexOf(movieToRemove),1)
+        //console.log("                                          Group...THIS IS")
+        //console.log(group)
+        //console.log("                                          Group.movies...THIS IS")
+        //console.log(group.movies)
+        return put(URI_MANAGER_GROUPS.addTo(groupId), group)
+        .then( () => { return group })
+        //return del(URI_MANAGER_MOVIES.delete(movieId), )
+        //.then(body => body._id)
+        
+        }
 
 
     function createGroupFromElastic(groupElastic) {

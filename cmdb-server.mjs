@@ -42,7 +42,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
 app.use(cookieParser())
-app.use(morgan('dev'))
+//app.use(morgan('dev'))
 app.use(serveFavicon(`${__dirname}/web/site/public/images/favicon-32x32.png`))
 
 const FileStore = fileStore(session)

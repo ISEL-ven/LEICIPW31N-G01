@@ -76,8 +76,10 @@ export default function (services) {
     async function getGroupsInternal(req, rsp) {
         //const groups = await services.getGroupsWeb(req.session.token, req.query.q, req.query.skip, req.query.limit)
         const groups = await services.getGroupsWeb(HAMMERED_TOKEN, req.query.q, req.query.skip, req.query.limit)
-        console.log("getGroupsInternal");
-        console.log(groups);
+        console.log("                                               GET GROUPS INTERNAL")
+        console.log(groups)
+       // console.log("getGroupsInternal");
+       // console.log(groups);
         return new View('groups', { title: 'My playlists', groups: groups })
     }
 
@@ -85,8 +87,8 @@ export default function (services) {
         const groupId = req.params.id
         //const group = await services.getGroup(req.token, groupId)
         const group = await services.getGroup(HAMMERED_TOKEN, groupId)
-        console.log("getGroupInternal");
-        console.log(group);
+        // console.log("getGroupInternal");
+        // console.log(group);
         return new View('groupdetail', group)
     }
 
@@ -102,7 +104,7 @@ export default function (services) {
     }
 
     async function createGroupInternal(req, rsp) {
-        console.log(req.body)
+        //console.log(req.body)
         try {
             const newGroup = await services.createGroup(HAMMERED_TOKEN, req.body)
             //const newGroup = await services.createGroup(req.token, req.body)
@@ -125,9 +127,9 @@ export default function (services) {
     }
 
     async function getMoviesInternal(req, rsp) {
-        console.log(`SEARCH MOVIES -> ${req.query}`)
+        // console.log(`SEARCH MOVIES -> ${req.query}`)
         const groups = await services.getGroups(HAMMERED_TOKEN)
-        const movies = await services.getMoviesByName(HAMMERED_TOKEN, req.query.q, req.query.skip, req.query.limit)      
+        const movies = await services.getMoviesByName(HAMMERED_TOKEN, req.query.q, req.query.skip, req.query.limit)      //gets all movies
         movies.map(x => x.groups = {groups})
         rsp.render('movies', {movies: movies})
     }
@@ -140,15 +142,18 @@ export default function (services) {
         const userToken = HAMMERED_TOKEN
         const groupId = req.params.id
         const movieId = req.params.idMovie
-        const deleted = await services.deleteMovie(userToken, groupId, movieId)
-        return new View('groupdetail', groupId)
+        const groupUpdated = await services.deleteMovie(userToken, groupId, movieId)
+        console.log ("FINALLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL")
+        console.log (groupUpdated)
+        //return new View('groupdetail', groupUpdated)
+        rsp.render(`groupdetail`, groupUpdated)
     }
 
     async function createUserInternal(req, rsp) {
         const name = req.body.username
         const token = req.session.token
         const user = await services.createWebUser(name, token)
-        console.log(`createUserInternal: ${user.name}`)
+        //console.log(`createUserInternal: ${user.name}`)
         req.user = user
         req.session[user] = user
         getHome(req, rsp)
@@ -159,8 +164,7 @@ export default function (services) {
         const groupId = req.params.id
         const movieId = req.params.idMovie
         const movie = await services.addMovie(userToken, groupId, movieId)
-
-        //getHome(req, rsp)
+        getHome(req, rsp)
         // TODO
     }
 
@@ -174,14 +178,14 @@ export default function (services) {
       
       
     async function validateLogin(req, rsp) {
-        console.log("validateLogin")
+        //console.log("validateLogin")
         if(validateUser(req.body.username, req.body.password)) {
             const user = {
                 name: req.body.username,
                 groups: req.body.groups,
                 dummy: "dummy property on user"
             }
-            console.log(user)
+            //console.log(user)
             req.login(user, () => rsp.redirect('/cmdb/'))
         }
         
@@ -211,7 +215,7 @@ export default function (services) {
         return async function (req, rsp) {
             //verifyAuthenticated(req, rsp, next)
             try {
-                console.log('##############################################')
+                //console.log('##############################################')
                 let view = await handler(req, rsp)
                 if (view) {
                     rsp.render(view.name, view.data)

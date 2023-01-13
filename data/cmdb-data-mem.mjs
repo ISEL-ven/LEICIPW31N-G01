@@ -10,18 +10,18 @@ let groups = []
 let nextGroupId = 0
 
 export async function getGroups() {
-    console.log(`GroupsData-getGroups`)
+    //console.log(`GroupsData-getGroups`)
     return groups
 }
 
 export async function getGroup(groupId) {
-    console.log(`GroupsData-getGroup: groupId-${groupId}`)
+    //console.log(`GroupsData-getGroup: groupId-${groupId}`)
     const group =  groups.find(group => group.id == groupId)
     return group
 }
 
 export async function deleteGroup(userId, groupId) {
-    console.log(`GroupsData-deleteGroup: groupId-${groupId}`)
+    //console.log(`GroupsData-deleteGroup: groupId-${groupId}`)
     const groupIdx = groups.findIndex(group => group.id == groupId)
     if(groupIdx != -1) {
         groups.splice(groupIdx, 1)
@@ -31,7 +31,7 @@ export async function deleteGroup(userId, groupId) {
 }
 
 export async function createGroup(userId, groupToCreate) {
-    console.log(groupToCreate)
+   // console.log(groupToCreate)
     //console.log(`GroupsData-createGroup: groupToCreate-${groupToCreate}`)
     let newGroup = {
         id: getNewId(), 
@@ -47,7 +47,7 @@ export async function createGroup(userId, groupToCreate) {
 }
 
 export async function updateGroup(userId, groupId, newGroup) {
-    console.log(`GroupsData-updateGroup: groupId-${groupId}, newGroup-${newGroup}`)
+   // console.log(`GroupsData-updateGroup: groupId-${groupId}, newGroup-${newGroup}`)
     const group = groups.find(group => group.id == groupId)
     if(group != undefined) {
         group.title = newGroup.title
@@ -74,7 +74,7 @@ export async function addMovie(userId, groupId, movieId) {
 }
 
 export async function deleteMovie(userId, groupId, movieId) {
-    console.log(`GroupsData-deleteMovie: userID-${userId}, groupId-${groupId}, movie-${movieId}`)
+   // console.log(`GroupsData-deleteMovie: userID-${userId}, groupId-${groupId}, movie-${movieId}`)
     const idxGroup = groups.findIndex(group => group.id == groupId && group.userId == userId);
     if (idxGroup == -1) throw errors.NOT_FOUND("Group")
     const idxMovie = groups[idxGroup].movies.find(movie => movie.id == movieId)

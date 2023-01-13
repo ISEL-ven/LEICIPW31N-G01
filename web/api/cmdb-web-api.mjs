@@ -36,7 +36,7 @@ export default function (services) {
 
     async function getGroupInternal(req, rsp) {
         const groupId = req.params.id
-        console.log(`WebAPI-getGroup: token-${req.token}, groupId-${groupId}}`)
+        //console.log(`WebAPI-getGroup: token-${req.token}, groupId-${groupId}}`)
         rsp.status(200)
         return services.getGroup(req.token, groupId)
     }
@@ -44,7 +44,7 @@ export default function (services) {
     async function deleteGroupInternal(req, rsp) {
         const groupId = req.params.id
         const group = await services.deleteGroup(req.token, groupId)
-        console.log(`WebAPI-deleteGroup: token-${req.token}, groupId-${groupId}, group-${group}`)
+        // console.log(`WebAPI-deleteGroup: token-${req.token}, groupId-${groupId}, group-${group}`)
         rsp.status(201)
         return {
             status: `Group with id ${groupId} deleted with success`,
@@ -55,7 +55,7 @@ export default function (services) {
     async function createGroupInternal(req, rsp) {
         let newGroup = await services.createGroup(req.token, req.body)
         rsp.status(201)
-        console.log(`WebAPI-createGroup: token-${req.token}, title-${req.body.title}, description-${req.body.description}`)
+        // console.log(`WebAPI-createGroup: token-${req.token}, title-${req.body.title}, description-${req.body.description}`)
         return {
             status: `Group with id ${newGroup.id} created with success`,
             group: newGroup
@@ -64,7 +64,7 @@ export default function (services) {
 
     async function updateGroupInternal(req, rsp) {
         const group = await services.updateGroup(req.token, req.params.id, req.body)
-        console.log(`WebAPI-updateGroup: token-${req.token}, groupId-${req.params.id}, body-${req.body}`)
+        // console.log(`WebAPI-updateGroup: token-${req.token}, groupId-${req.params.id}, body-${req.body}`)
         rsp.status(201)
         return {
             status: `Group with id ${req.params.id} updated with success`,
@@ -101,7 +101,7 @@ export default function (services) {
         const groupId = req.params.id
         const movieId = req.params.idMovie
         const movie = await services.deleteMovie(req.token, groupId, movieId)
-        console.log(`WebAPI-deleteMovie: token-${req.token}, groupId-${groupId}, movieId-${movieId}`)
+        // console.log(`WebAPI-deleteMovie: token-${req.token}, groupId-${groupId}, movieId-${movieId}`)
         rsp.status(201)
         return {
             status: `Movie with id ${movieId} from group with id ${groupId} deleted with success`,
@@ -111,7 +111,7 @@ export default function (services) {
 
     async function createUserInternal(req, rsp) {
         let newUser = await services.createUser(req.body.name)
-        console.log(`WebAPI-createUser: body-${req.body}`)
+        // console.log(`WebAPI-createUser: body-${req.body}`)
         rsp.status(201);
         return {
             status: `User with name ${newUser.name} created with success`,
