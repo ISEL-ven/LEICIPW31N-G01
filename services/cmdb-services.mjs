@@ -41,6 +41,8 @@ export default function(groupsData, usersData, moviesData) {
 
     async function getUser (username, password) {
         const user = await usersData.getUser(username)
+        console.log("                        USERNAME")
+        console.log(user)
         if (user.password == password) return user    //if user is undefined if loop is false
     }
 

@@ -15,9 +15,9 @@ export default function () {
 
     async function getUser(userToken, username) {
         const allUsers = await getAllUsers()
-        const user = allUsers //just to initialize
+        let user = allUsers //just to initialize
         if (username) user = allUsers.find( (u) => { return u.username == username})
-        if (userToken) user = allUsers.find( (u) => { return u.token == req.token})
+        if (userToken) user = allUsers.find( (u) => { return u.token == userToken})
         return user
     }
 

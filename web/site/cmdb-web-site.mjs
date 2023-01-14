@@ -180,8 +180,10 @@ export default function (services) {
         
         return async function (req, rsp) {
             //verifyAuthenticated(req, rsp, next)
+           console.log('                ##############################################')
+            console.log(req)
             try {
-                //console.log('##############################################')
+                
                 let view = await handler(req, rsp)
                 if (view) {
                     rsp.render(view.name, view.data)
