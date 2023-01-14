@@ -66,13 +66,15 @@ export default function (services) {
 
     async function getGroupsInternal(req, rsp) {
         const groups = await services.getGroupsWeb(req.token, req.query.q, req.query.skip, req.query.limit)
+        const user = req.user
 
-        return new View('groups', { title: 'My playlists', groups: groups })
+        return new View('groups', { title: 'My playlists', groups: groups, user })
     }
 
     async function getGroupInternal(req, rsp) {
         const groupId = req.params.id
         const group = await services.getGroup(req.token, groupId)
+        group.user = req.user
 
         return new View('groupdetail', group)
     }
@@ -84,6 +86,7 @@ export default function (services) {
     async function deleteGroupInternal(req, rsp) {
         const groupId = req.params.id
         const group = await services.deleteGroup(req.token, groupId)
+        group.user = req.user
         rsp.redirect(ROOT)
     }
 
@@ -102,6 +105,7 @@ export default function (services) {
     async function getUpdateGroupForm(req, rsp) {
         const groupId = req.params.id
         const group = await services.getGroup(req.token, groupId)
+        group.user = req.user
 
         return rsp.render('groupEdit', group)    
     }
