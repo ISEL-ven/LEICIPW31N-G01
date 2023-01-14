@@ -13,11 +13,11 @@ export default function () {
         getUserByGroupId
     }
 
-    async function getUser(userToken, username) {
+    async function getUser(username, password) {
         const allUsers = await getAllUsers()
         let user = allUsers //just to initialize
         if (username) user = allUsers.find( (u) => { return u.username == username})
-        if (userToken) user = allUsers.find( (u) => { return u.token == userToken})
+        if (password) user = allUsers.find( (u) => { return u.password == password})
         return user
     }
 
@@ -25,24 +25,22 @@ export default function () {
         const allInfo = await get(URI_MANAGER_USERS.getAll())
         const arrayWInfo = allInfo.hits.hits
         const allusers = arrayWInfo.map((it) => {return it._source})
-        // console.log("inside ELASTIC")
-        // console.log(allusers)
+
         return allusers
     }
 
     async function getUserByGroupId(id) {
         return get(URI_MANAGER_USERS.get(id))
-            .then(createGroupFromElasticSendUser)
-            
+            .then(createGroupFromElasticSendUser)            
     }
 
     async function createUser(username, password) {
-        //console.log("/n elastic - createUser/n")
         const newUser = {
             token: crypto.randomUUID() ,
             username: username ,
             password: password
         }
+
         return post(URI_MANAGER_USERS.create(), newUser)
             .then(() => { return newUser })
     }
@@ -50,6 +48,7 @@ export default function () {
     function createUserFromElastic(userElastic) {
         let user = userElastic._source
         user.id = userElastic._id
+        
         return user
     }    
 }

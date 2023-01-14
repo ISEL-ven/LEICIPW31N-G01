@@ -35,13 +35,12 @@ export default function (services) {
     }
 
     async function createUserInternal(req, rsp) {
-        console.log(req.body)
         const name = req.body.username
         const password = req.body.password
-        //const token = req.token
         const user = await services.createWebUser(name, password)
         //authentication process
         req.token = user.token
+        
         req.login(user, () => rsp.redirect(HOME) )
     }
 
@@ -50,14 +49,11 @@ export default function (services) {
     }
 
     async function validateLogin(req, rsp) {
-        console.log("validateLogin")
         const username = req.body.username
         const password = req.body.password
         const user = await services.getUser(username, password) //validates user and returns it if exists and valid 
-        console.log ("USER SITE")
-        console.log (user)
-        if (user) req.login(user, () => rsp.redirect('/cmdb/'))
-        //what if else? what if credentials are not valid?
+        
+        if (user) req.login(user, () => {return rsp.render('home', {user: user})})
     }
     
     async function logout(req, rsp, next) {
@@ -68,13 +64,12 @@ export default function (services) {
      function handleRequest(handler) {
         return async function (req, rsp) {
             try {
-                //console.log('##############################################')
                 let view = await handler(req, rsp)
                 if (view) {
                     rsp.render(view.name, view.data)
                 }                
             } catch (e) {
-                console.log('HANDLER ERROR ---------------------------------------------------------------')
+                console.log('                        CMDB-USERS - HANDLER ERROR ')
                 const response = toHttpResponse(e)
                 rsp.status(response.status).json({ error: response.body })
                 console.log(e)

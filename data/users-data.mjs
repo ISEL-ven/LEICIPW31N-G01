@@ -12,7 +12,6 @@ export async function createUser(userName, token) {
     if(token != undefined) {userToken = token}
     else {userToken = crypto.randomUUID()}
 
-    //console.log(`CREATE NEW USER ${userName}--------------------------------------`)
     if (!userName) {
         throw errors.INVALID_PARAMETER(userName)
     }
@@ -21,17 +20,17 @@ export async function createUser(userName, token) {
         name: userName,
         token: userToken
     }
-    //console.log(`UsersDATA-createUser: user-${newUser.name}`)
     users.push(newUser)
+
     return newUser
 }
 
 export async function getUser(userToken) {
     const user =  users.find(user => user.token == userToken)
-   // console.log(`UsersDATA: userToken-${userToken}, user-${user}`)
     if (!user) {
         throw errors.USER_NOT_FOUND('user')
     }
+    
     return user
 }
 

@@ -1,19 +1,28 @@
-<div>
-    <p>{{title}}</p>
-    <p>{{description}}</p>
-    <p><b>Number of movies:</b> {{numMovies}}</p>
-    <p><b>Total duration:</b> {{totalDuration}} mins</p>
-    <p><b>------------------ Movies ------------------</b> </p>
-    {{#each this.movies}}
-    <form action="/cmdb/groups/{{../id}}/{{id}}/delete" method="POST">
-        <li><a class="dropdown-item"></a>
-            <p><b>{{this.title}}</b> - <b> Duration: </b>{{this.runtimeMins}}mins
-                <button type="submit" class="btn btn-danger">Remove</button>
-                <a href="/cmdb/movies/{{id}}"><button type="button" class="btn btn-dark">Details</button></a>
-            </p>
-        </li>
-    </form>       
-    {{/each}}
-    <a href="/cmdb/groups/{{id}}/edit"><button type="button" class="btn btn-success">Edit List</button></a>
+<div class="card-group">
+    <div class="col">
+        <div class="card mb-3" style="max-width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">{{title}}</h5>
+                <p class="card-descripton">{{description}}</p>
+                <p class="">Number of movies: {{numMovies}}</p>
+                <p class="">Total duration: {{totalDuration}} mins</p>
+                <div class="d-grid gap-2 d-md-block">
+                    <p><b>------------------ Movies ------------------</b> </p>
+                    {{#each this.movies}}
+                        <form action="/cmdb/groups/{{../id}}/{{id}}/delete" method="POST">
+                            <p><b>{{this.title}}</b> - {{this.runtimeMins}}mins</p>
+                            <!--<p><b> Duration: </b>{{this.runtimeMins}}mins</p>-->
+                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                            <a href="/cmdb/movies/{{id}}"><button type="button" class="btn btn-dark btn-sm">Details</button></a>                        
+                        </form>
+                        <hr>     
+                    {{/each}}
+                </div>
+                <hr>
+                <a href="/cmdb/groups/"><button type="button" class="btn btn-dark">Go back</button></a>
+                <a href="/cmdb/groups/{{id}}/edit"><button type="button" class="btn btn-success">Edit List</button></a>
+            </div>
+        </div>
+    </div>
 </div>
 

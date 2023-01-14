@@ -14,7 +14,6 @@ import hbs from 'hbs'
 import cookieParser from 'cookie-parser'
 import session from 'express-session'
 import fileStore from 'session-file-store'
-import crypto from 'crypto'
 import serveFavicon from 'serve-favicon'
 
 import * as groupsData from './data/cmdb-data-mem.mjs'
@@ -45,7 +44,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
-//app.use(morgan('dev'))
+app.use(morgan('dev'))
 app.use(serveFavicon(`${__dirname}/web/site/public/images/favicon-32x32.png`))
 
 const FileStore = fileStore(session)
@@ -60,17 +59,12 @@ app.use(session({
 app.use(passport.session())
 app.use(passport.initialize())
 
-//passport.serializeUser(serializeUserDeserializeUser)
-//passport.deserializeUser(serializeUserDeserializeUser)
-
 
 // View engine setup ---------------------------------------------------------------
 const viewsPath = path.join(__dirname, 'web', 'site', 'views')
 app.set('view engine', 'hbs')
 app.set('views', viewsPath)
 hbs.registerPartials(path.join(viewsPath, 'partials'))
-
-//app.use(sessionMiddleware)
 
 // Middleware routes -----------------------------------------------------------------
 app.use ('/cmdb/groups', checkAuthentication)
@@ -102,7 +96,6 @@ app.get('/cmdb/groups/:id/update', site.getUpdateGroupForm)
 app.post('/cmdb/groups/:id/:idMovie', site.addMovie)
 app.post('/cmdb/groups/:id/:idMovie/delete', site.deleteMovie)
 app.get('/cmdb/movies/:id', site.getMovieDetails)
-
 app.get('/login', users.loginForm)
 app.post('/login', users.validateLogin)
 app.get('/register', users.registerForm)
@@ -110,7 +103,6 @@ app.post('/register', users.createUser)
 app.get('/logout', users.logout)
 app.post('/logout', users.logout)
 //app.get('/commingsoon', site.commingSoon)
-
 app.get('/cmdb/search', site.getMovies)
 app.get('/cmdb/search/:idMovie', site.getMovie)
 
@@ -118,25 +110,8 @@ app.get('/cmdb/search/:idMovie', site.getMovie)
 // Start App -----------------------------------------------------------------------
 app.listen(PORT, () => console.log(`Server listening at http://localhost:${PORT}\nEnd setting up server`))
 
-// // Route handling functions ---------------------------------------------------------
-// function sessionMiddleware(req, rsp, next) {
-//     req.session.token = req.session.token || crypto.randomUUID()
-//     //req.session.counter = (req.session.counter || 0) + 1
-//     //console.log(`Session counter: ${req.session.counter}`)
 
-//     //console.log(`Session token: ${req.session.token}`)
-//     next()
-// }
-
-/*function serializeUserDeserializeUser(user, done) {
-    done(null, user)
-}
-
-function serializeUser(user, done) {
-    done(null, user)
-}*/
-
-//Passport inicialization
+// Passport user functions  ---------------------------------------------------------
 passport.serializeUser(function (user, cb) {
     process.nextTick(function () {
         cb(null, { id: user.id, username: user.username })

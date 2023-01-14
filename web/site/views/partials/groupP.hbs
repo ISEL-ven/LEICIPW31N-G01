@@ -7,7 +7,6 @@
             <p class="">Number of movies: {{this.numMovies}}</p>
             <p class="">Total duration: {{this.totalDuration}}</p>
             <div class="d-grid gap-2 d-md-block">
-                <!--<button type="submit" class="btn btn-dark">Details</button>-->
                 <a href="/cmdb/groups/{{this.id}}" class="btn btn-dark">Details</a>
                 <form action="/cmdb/groups/{{id}}/delete" method="POST">
                     <button type="submit" class="btn btn-danger">Delete</button>

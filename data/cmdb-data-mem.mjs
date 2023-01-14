@@ -3,25 +3,21 @@
 
 
 import errors from '../errors.mjs'
-import movies from './cache/movies.mjs'
 import {getMovieById, getMovieByIdExternal} from './cmdb-movies-data.mjs'
 
 let groups = []
 let nextGroupId = 0
 
 export async function getGroups() {
-    //console.log(`GroupsData-getGroups`)
     return groups
 }
 
 export async function getGroup(groupId) {
-    //console.log(`GroupsData-getGroup: groupId-${groupId}`)
     const group =  groups.find(group => group.id == groupId)
     return group
 }
 
 export async function deleteGroup(userId, groupId) {
-    //console.log(`GroupsData-deleteGroup: groupId-${groupId}`)
     const groupIdx = groups.findIndex(group => group.id == groupId)
     if(groupIdx != -1) {
         groups.splice(groupIdx, 1)
@@ -31,8 +27,6 @@ export async function deleteGroup(userId, groupId) {
 }
 
 export async function createGroup(userId, groupToCreate) {
-   // console.log(groupToCreate)
-    //console.log(`GroupsData-createGroup: groupToCreate-${groupToCreate}`)
     let newGroup = {
         id: getNewId(), 
         title: groupToCreate.title,
@@ -43,21 +37,21 @@ export async function createGroup(userId, groupToCreate) {
         movies: []
     }
     groups.push(newGroup)
+
     return newGroup
 }
 
 export async function updateGroup(userId, groupId, newGroup) {
-   // console.log(`GroupsData-updateGroup: groupId-${groupId}, newGroup-${newGroup}`)
     const group = groups.find(group => group.id == groupId)
     if(group != undefined) {
         group.title = newGroup.title
         group.description = newGroup.description
+
         return group
     } 
 }
 
 export async function addMovie(userId, groupId, movieId) {
-    //console.log(`GroupsData-addMovie: userID-${userId}, groupId-${groupId}, movie-${movieId}`)
     const idxGroup = groups.findIndex(group => group.id == groupId && group.userId == userId);
     if (idxGroup == -1) throw errors.NOT_FOUND("Group");
     const newMovie = await getMovieById(movieId)    
@@ -70,11 +64,11 @@ export async function addMovie(userId, groupId, movieId) {
     groups[idxGroup].totalDuration += duration
     groups[idxGroup].numMovies++
     groups[idxGroup].movies.push(newMovie)
+
     return newMovie
 }
 
 export async function deleteMovie(userId, groupId, movieId) {
-   // console.log(`GroupsData-deleteMovie: userID-${userId}, groupId-${groupId}, movie-${movieId}`)
     const idxGroup = groups.findIndex(group => group.id == groupId && group.userId == userId);
     if (idxGroup == -1) throw errors.NOT_FOUND("Group")
     const idxMovie = groups[idxGroup].movies.find(movie => movie.id == movieId)

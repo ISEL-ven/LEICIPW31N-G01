@@ -41,7 +41,6 @@ export default function (services) {
         getMovieDetails : getMovieDetailsInternal,
         addMovie: addMovieInternal,  // FALTA PASSAR PELO HANDLER
         deleteMovie: deleteMovieInternal, // FALTA PASSAR PELO HANDLER
-
         getMovies: handleRequest(getMoviesInternal),        
         
     }
@@ -53,12 +52,12 @@ export default function (services) {
     async function getHome (req, rsp) {
         let user = {
             id: undefined,
-            name: undefined,
+            username: undefined,
             token: undefined
         }
         if (req.user != undefined){
             user.id = req.user.id
-            user.name = req.user.name
+            user.username = req.user.username
             user.token = req.user.token
         }
         
@@ -66,21 +65,15 @@ export default function (services) {
     }
 
     async function getGroupsInternal(req, rsp) {
-        //const groups = await services.getGroupsWeb(req.session.token, req.query.q, req.query.skip, req.query.limit)
         const groups = await services.getGroupsWeb(req.token, req.query.q, req.query.skip, req.query.limit)
-        //console.log("                                               GET GROUPS INTERNAL")
-        //console.log(groups)
-       // console.log("getGroupsInternal");
-       // console.log(groups);
+
         return new View('groups', { title: 'My playlists', groups: groups })
     }
 
     async function getGroupInternal(req, rsp) {
         const groupId = req.params.id
-        //const group = await services.getGroup(req.token, groupId)
         const group = await services.getGroup(req.token, groupId)
-        // console.log("getGroupInternal");
-        // console.log(group);
+
         return new View('groupdetail', group)
     }
 
@@ -95,11 +88,8 @@ export default function (services) {
     }
 
     async function createGroupInternal(req, rsp) {
-        //console.log(req.body)
         try {
             const newGroup = await services.createGroup(req.token, req.body)
-            //const newGroup = await services.createGroup(req.token, req.body)
-            //rsp.redirect(`${ROOT}/${newGroup.id}`)
             rsp.redirect(`${ROOT}`)
         } catch (e) {
             if (e.code == 1) {
@@ -110,12 +100,10 @@ export default function (services) {
     }
 
     async function getUpdateGroupForm(req, rsp) {
-
         const groupId = req.params.id
         const group = await services.getGroup(req.token, groupId)
 
-        return rsp.render('groupEdit', group)
-    
+        return rsp.render('groupEdit', group)    
     }
 
     async function updateGroupInternal(req, rsp) {
@@ -123,9 +111,6 @@ export default function (services) {
 
         try {
             const newGroup = await services.updateGroup(req.token, paramsId, req.body)
-            
-            //const newGroup = await services.createGroup(req.token, req.body)
-            //rsp.redirect(`${ROOT}/${newGroup.id}`)
             rsp.redirect(`${ROOT}`)
         } catch (e) {
             if (e.code == 1) {
@@ -136,21 +121,18 @@ export default function (services) {
     }
 
     async function getMoviesInternal(req, rsp) {
-        // console.log(`SEARCH MOVIES -> ${req.query}`)
         const groups = await services.getGroups(req.token)
         const movies = await services.getMoviesByName(req.token, req.query.q, req.query.skip, req.query.limit)      //gets all movies
         movies.map(x => x.groups = {groups})
+        
         rsp.render('movies', {movies: movies})
     }
 
-    async function getMovieDetailsInternal(req, rsp) {
-       
+    async function getMovieDetailsInternal(req, rsp) {       
         const idMovie =req.params.id
         const movie = await services.getMovieDetails(req.token,idMovie)
-        // console.log(                            "_MOOOOOVIEEEEEEEEE_________")
-        // console.log(movie)
+        
         rsp.render("movie-detail", movie)
-        // TODO
     }
 
     async function deleteMovieInternal(req, rsp) {
@@ -158,38 +140,29 @@ export default function (services) {
         const groupId = req.params.id
         const movieId = req.params.idMovie
         const groupUpdated = await services.deleteMovie(userToken, groupId, movieId)
-        // console.log ("FINALLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL")
-        // console.log (groupUpdated)
-        //return new View('groupdetail', groupUpdated)
+
         rsp.render(`groupdetail`, groupUpdated)
     }
 
     async function addMovieInternal(req, rsp) {
-        //console.log(req)
         const userToken = req.token
         const groupId = req.params.id
         const movieId = req.params.idMovie
         const movie = await services.addMovie(userToken, groupId, movieId)
-        //todo
-        getHome(req, rsp)
-        
+
+        getHome(req, rsp)        
     }
     
      // Auxiliary functions ----------------------------------------------------------------
-     function handleRequest(handler) {
-        
+     function handleRequest(handler) {        
         return async function (req, rsp) {
-            //verifyAuthenticated(req, rsp, next)
-           console.log('                ##############################################')
-            console.log(req)
-            try {
-                
+            try {                
                 let view = await handler(req, rsp)
                 if (view) {
                     rsp.render(view.name, view.data)
                 }                
             } catch (e) {
-                console.log('HANDLER ERROR ---------------------------------------------------------------')
+                console.log('                    CMDB-WEBSITE - HANDLER ERROR ')
                 const response = toHttpResponse(e)
                 rsp.status(response.status).json({ error: response.body })
                 console.log(e)

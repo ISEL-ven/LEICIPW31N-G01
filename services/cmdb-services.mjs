@@ -16,10 +16,6 @@ export default function(groupsData, usersData, moviesData) {
         console.log('Services: moviesData is missing')
         throw errors.INVALID_PARAMETER('moviesData')
     }
-    // if (!elasticData) {
-    //     console.log('Services: elasticData is missing')
-    //     throw errors.INVALID_PARAMETER('elasticData')
-    // }
 
     return {
         getGroups: getGroups,                // groups from user
@@ -41,8 +37,7 @@ export default function(groupsData, usersData, moviesData) {
 
     async function getUser (username, password) {
         const user = await usersData.getUser(username)
-        console.log("                        USERNAME")
-        console.log(user)
+        
         if (user.password == password) return user    //if user is undefined if loop is false
     }
 
@@ -63,7 +58,6 @@ export default function(groupsData, usersData, moviesData) {
     }
 
     async function getGroups(userToken, q, skip=0, limit=MAX_LIMIT) {
-        //console.log(`Services-getGroups: userToken-${userToken}, q-${q}, skip-${skip}, limit-${limit}`)
         limit = Number(limit)
         skip = Number(skip)
         if (   isNaN(limit)
@@ -76,26 +70,22 @@ export default function(groupsData, usersData, moviesData) {
             ) {
                 throw errors.INVALID_PARAMETER('skip or limit', `Skip and limit must be positive, less than ${MAX_LIMIT} and its sum must be less or equal to ${MAX_LIMIT}`)
             }
-        //ERROR POSSIBILITY
+
         const user = await usersData.getUser(userToken)
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
+
         return groupsData.getGroups(user.id, q, skip, limit)
     }
 
     async function getGroup(userToken, groupId) {
-        // console.log('SERVICES')
-        // console.log(userToken)
-        // console.log(groupId)
         const user = await usersData.getUser(userToken)
-        // console.log(user)
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
+
         const group = await groupsData.getDetailsFromGroup(groupId)
-        // console.log(group)
-        // console.log(`Services-getGroup: userToken-${userToken}, groupId-${groupId}, group-${group}`)
         if (group) {
             return group
         }
@@ -104,17 +94,15 @@ export default function(groupsData, usersData, moviesData) {
 
     async function deleteGroup(userToken, groupId) {
         const user = await usersData.getUser(userToken)
-        //console.log(`Services-deleteGroup: userToken-${userToken}, groupId-${groupId}, user-${user}`)
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
+
         return groupsData.deleteGroup(groupId)
     }
 
     async function createGroup(userToken, groupToCreate) {
-        // console.log(groupToCreate)
         const user = await usersData.getUser(userToken)
-        //console.log(`Services-createGroup: userToken-${userToken}, groupToCreate-${groupToCreate}, user-${user}`)
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
@@ -124,13 +112,12 @@ export default function(groupsData, usersData, moviesData) {
         if (!isAString(groupToCreate.description)) {
             throw errors.INVALID_PARAMETER('description')
         }
+
         return groupsData.createGroup(user.id, groupToCreate)
     }
 
     async function updateGroup(userToken, groupId, groupToCreate) {
         const user = await usersData.getUser(userToken)
-        console.log("Xxxxxxxxxxxxxxxxx____________________________XXXXXXXXXXXXXXXXXXXXXXXXX")
-        //console.log(`Services-updateGroup: userToken-${userToken}, groupId-${groupId}, groupToUpdate-${groupToCreate}, user-${user}`)
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
@@ -140,11 +127,11 @@ export default function(groupsData, usersData, moviesData) {
         if (!isAString(groupToCreate.description)) {
             throw errors.INVALID_PARAMETER('description')
         }
+
         return groupsData.updateGroup(user.id, groupId, groupToCreate)
     }
 
     async function getMovies(userToken, q, skip=0, limit=MAX_LIMIT) {
-        //console.log(`Services-getMovies: userToken-${userToken}, q-${q}, skip-${skip}, limit-${limit}`)
         limit = Number(limit)
         skip = Number(skip)
         if (   isNaN(limit)
@@ -162,11 +149,11 @@ export default function(groupsData, usersData, moviesData) {
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
+
         return await moviesData.search(user.id, q, skip, limit)
     }
 
     async function getMoviesByName(userToken, q, skip=0, limit=MAX_LIMIT) {
-        //console.log(`Services-getMovies: userToken-${userToken}, q-${q}, skip-${skip}, limit-${limit}`)
         limit = Number(limit)
         skip = Number(skip)
         if (   isNaN(limit)
@@ -184,6 +171,7 @@ export default function(groupsData, usersData, moviesData) {
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
+
         return await moviesData.search(user.id, q, skip, limit)
     }
 
@@ -193,10 +181,10 @@ export default function(groupsData, usersData, moviesData) {
             throw errors.USER_NOT_FOUND()
         }
         const movie = await moviesData.getMovieById(movieId)
-        console.log(`Services-getMovie: userToken-${userToken}, movieId-${movieId}, user-${user}, movie-${movie}`)
         if (movie) {
             return movie
         }
+
         throw errors.NOT_FOUND(`Movie ${movieId}`)
     }
 
@@ -206,7 +194,6 @@ export default function(groupsData, usersData, moviesData) {
             throw errors.USER_NOT_FOUND()
         }
         const movie = await moviesData.getMovieById(movieId)
-        console.log(`Services-getMovieDetails: userToken-${userToken}, movieId-${movieId}, user-${user}, movie-${movie}`)
         if (movie) {
             return movie
         }
@@ -222,11 +209,7 @@ export default function(groupsData, usersData, moviesData) {
         if (!group) {
             throw errors.NOT_FOUND(`Group ${groupId}`)
         }
-        // const movie = await moviesData.getMovieById(movieId)
-        // //console.log(`Services-deleteMovie: userToken-${userToken}, groupId-${groupId}, movieId-${movieId}, user-${user}, group-${group}, movie-${movie}`)
-        // if (!movie) {
-        //     throw errors.NOT_FOUND(`Group ${groupId} has no movie ${movieId}`)
-        // }
+        
         return groupsData.deleteMovie(user.id, groupId, movieId)        
     }
 
@@ -239,30 +222,26 @@ export default function(groupsData, usersData, moviesData) {
         if (!group) {
             throw errors.NOT_FOUND(`Group ${groupId}`)
         }
-        //console.log(`Services-addMovie: userToken-${userToken}, groupId-${groupId}, movieId-${movieId}, user-${user}, group-${group}`)
+
         return await groupsData.addMovie(user.id, groupId, movieId)
     }
 
     async function createUser(name){
-        console.log(`Services-createUser: userName ${name}`)
         if(name == undefined) {
             throw errors.INVALID_ARGUMENT("name")
         }
+
         return await usersData.createUser(name)
     }
 
     async function createWebUser(name, password){
-        console.log(`Services-createUser: userName ${name}, password: ${password}`)
         if(name == undefined) {
             throw errors.INVALID_ARGUMENT("name")
         }
         if(password == undefined) {
             throw errors.INVALID_ARGUMENT("password")
         }
-        // let user = {
-        //     name: name,
-        //     token: token
-        // }
+
         return await usersData.createUser(name, password)
     }
 }
