@@ -57,7 +57,7 @@ export async function updateGroup(userId, groupId, newGroup) {
 }
 
 export async function addMovie(userId, groupId, movieId) {
-    console.log(`GroupsData-addMovie: userID-${userId}, groupId-${groupId}, movie-${movieId}`)
+    //console.log(`GroupsData-addMovie: userID-${userId}, groupId-${groupId}, movie-${movieId}`)
     const idxGroup = groups.findIndex(group => group.id == groupId && group.userId == userId);
     if (idxGroup == -1) throw errors.NOT_FOUND("Group");
     const newMovie = await getMovieById(movieId)    

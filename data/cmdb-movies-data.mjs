@@ -12,7 +12,7 @@ const LIMIT = 250
 
 // Fuctions that search cache first -------------------------------------------------------
 export async function search(userId, q, skip, limit){
-    console.log(`moviesDATA-search: userId-${userId}, q-${q}, skip-${skip}, limit-${limit}`)
+    //console.log(`moviesDATA-search: userId-${userId}, q-${q}, skip-${skip}, limit-${limit}`)
     if (limit == 0) limit = LIMIT
     if (q) {
         const movies = cache.items.map(item => {if (item.title.includes(q)) return item}).filter(val => val != null)
@@ -34,7 +34,7 @@ export async function search(userId, q, skip, limit){
 }  
 
 export async function getMovieById(id){    
-    console.log(`moviesDATA-getMovieById: movieId-${id}`)
+    //console.log(`moviesDATA-getMovieById: movieId-${id}`)
     return getMovieByIdExternal(id)
     const movie = cache.items.find(movie => movie.id == id) //gets movie specified from cache
     if (!movie) {   //if not in cache gets movie from "EXTERNAL"
@@ -57,7 +57,7 @@ async function top250moviesExternal(quantity){
 
 async function nameSearchExternal(name, quantity) {
     return cache.items.slice(0, 6)  // to use internal cache movies
-    console.log(`MoviesData-searchByName: search in external IMDB, name-${name},  quantity-${quantity}`)
+   // console.log(`MoviesData-searchByName: search in external IMDB, name-${name},  quantity-${quantity}`)
     const rsp = await fetch(`${IMDB_URL}SearchMovie${IMDB_API}/${name}`)
     const body = await rsp.text()
     const movies = JSON.parse(body)

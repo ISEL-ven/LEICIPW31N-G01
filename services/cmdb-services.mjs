@@ -22,20 +22,26 @@ export default function(groupsData, usersData, moviesData) {
     // }
 
     return {
-        getGroups: getGroups,             // groups from user
-        getGroup: getGroup,              // especific group 
+        getGroups: getGroups,                // groups from user
+        getGroup: getGroup,                  // especific group 
         getGroupsWeb: getGroupsWeb,
-        updateGroup: updateGroup,       // group name, etc
-        deleteGroup: deleteGroup,      // remove group from user
-        createGroup: createGroup,     // add new group to user
-        getMovies: getMovies,        // search movies
-        getMovie: getMovie,         // get especific movie
-        deleteMovie: deleteMovie,  // remove movie from group
-        addMovie: addMovie,       // add movie to group
+        updateGroup: updateGroup,            // group name, etc
+        deleteGroup: deleteGroup,            // remove group from user
+        createGroup: createGroup,            // add new group to user
+        getMovies: getMovies,                // search movies
+        getMovie: getMovie,                  // get especific movie
+        deleteMovie: deleteMovie,            // remove movie from group
+        addMovie: addMovie,                  // add movie to group
         getMoviesByName: getMoviesByName,
-        getMovieDetails: getMovieDetails
-        //createUser : createUser, // add user
-        //createWebUser: createWebUser
+        getMovieDetails: getMovieDetails,
+        getUser: getUser,
+        createUser : createUser,             // add user
+        createWebUser: createWebUser
+    }
+
+    async function getUser (username, password) {
+        const user = await usersData.getUser(username)
+        if (user.password == password) return user    //if user is undefined if loop is false
     }
 
     async function getGroupsWeb(q, skip=0, limit=MAX_LIMIT) {
@@ -68,7 +74,7 @@ export default function(groupsData, usersData, moviesData) {
             ) {
                 throw errors.INVALID_PARAMETER('skip or limit', `Skip and limit must be positive, less than ${MAX_LIMIT} and its sum must be less or equal to ${MAX_LIMIT}`)
             }
-
+        //ERROR POSSIBILITY
         const user = await usersData.getUser(userToken)
         if (!user) {
             throw errors.USER_NOT_FOUND()
@@ -121,6 +127,7 @@ export default function(groupsData, usersData, moviesData) {
 
     async function updateGroup(userToken, groupId, groupToCreate) {
         const user = await usersData.getUser(userToken)
+        console.log("Xxxxxxxxxxxxxxxxx____________________________XXXXXXXXXXXXXXXXXXXXXXXXX")
         //console.log(`Services-updateGroup: userToken-${userToken}, groupId-${groupId}, groupToUpdate-${groupToCreate}, user-${user}`)
         if (!user) {
             throw errors.USER_NOT_FOUND()
@@ -177,7 +184,6 @@ export default function(groupsData, usersData, moviesData) {
         }
         return await moviesData.search(user.id, q, skip, limit)
     }
-
 
     async function getMovie(userToken, movieId) {
         const user = await usersData.getUser(userToken)
@@ -243,20 +249,19 @@ export default function(groupsData, usersData, moviesData) {
         return await usersData.createUser(name)
     }
 
-    async function createWebUser(name, token){
-        console.log(`Services-createUser: userName ${name}, token: ${token}`)
+    async function createWebUser(name, password){
+        console.log(`Services-createUser: userName ${name}, password: ${password}`)
         if(name == undefined) {
             throw errors.INVALID_ARGUMENT("name")
         }
-        if(token == undefined) {
-            throw errors.INVALID_ARGUMENT("token")
+        if(password == undefined) {
+            throw errors.INVALID_ARGUMENT("password")
         }
-        let user = {
-            name: name,
-            token: token
-        }
-        return await usersData.createUser(name, token)
-        //return await elasticData.createUser(user)
+        // let user = {
+        //     name: name,
+        //     token: token
+        // }
+        return await usersData.createUser(name, password)
     }
 }
 

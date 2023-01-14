@@ -14,11 +14,16 @@
         <a class="nav-link" href="/cmdb/groups/new/">Create Movieslist</a>
       </li>
       <li class="nav-item" id="register">
-        <a class="nav-link" href="/commingsoon"><i class="bi-person"></i> Register</a>
+        <a class="nav-link" href="/register"><i class="bi-person"></i> Register</a>
       </li>
       <li class="nav-item" id="login">
-        <a class="nav-link" href="/commingsoon"><i class="bi-person-circle"></i> Login</a>
+        <a class="nav-link" href="/login"><i class="bi-person-circle"></i> Login</a>
       </li>
+
+      <form action="/logout" method="POST">
+        <input type="submit" value="Logout"/>
+        </form>
+     
       <!--<li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <i class="bi-person-circle"></i>  {{!--{{user.name}}--}}
@@ -26,6 +31,9 @@
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
           <a class="dropdown-item" href="/commingsoon">Logout</a>
         </div>
+      </li>-->
+       <!--<li class="nav-item" id="logout" > 
+        <a class="nav-link" href="/logout"><i class="bi-person-circle"></i> Logout</a>
       </li>-->
       <!--<form class="form-inline my-2 my-lg-0" method="GET" action="/cmdb/search/">-->
       <form class="d-flex" method="GET" action="/cmdb/search/">

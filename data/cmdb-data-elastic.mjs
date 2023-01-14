@@ -18,10 +18,7 @@ export default function () {
         deleteGroup,
         getDetailsFromGroup,
         addMovie,
-        deleteMovie,
-        createUser,
-        getUserByToken//,
-        //getUserByGroupId
+        deleteMovie
     }
 
     async function getGroups(userId) {
@@ -34,7 +31,6 @@ export default function () {
           }
         return get(URI_MANAGER_GROUPS.getAll(), query)
             .then(body => body.hits.hits.map(createGroupFromElastic))
-
     }
 
     async function getDetailsFromGroup(id) {
@@ -42,27 +38,9 @@ export default function () {
             .then(createGroupFromElastic)
     }
 
-    async function getUserByToken(token) {
-        const query = {
-            query: {
-              match: {
-                "authToken": token
-              }
-            }
-          }
-          return get(URI_MANAGER_USERS.getAll(), query)
-            .then(body => body.hits.hits.map(createUserFromElastic)[0])
-    }
-
-    /*async function getUserByGroupId( id) {
-        return get(URI_MANAGER_GROUPS.get(id))
-            .then(createGroupFromElasticSendUser)
-            
-    }*/
-
     async function createGroup(userID,groupToCreate) {
         //console.log("createGroup_____elastic")
-        let newGroup = {
+        const newGroup = {
             title: groupToCreate.title,
             description: groupToCreate.description,
             userId: userID,
@@ -88,7 +66,7 @@ export default function () {
             director: movieInfo.directors,
             actors: movieInfo.actorList,
         }
-        const group = await getDetailsFromGroup(groupId)    //gets movie from elastic database
+        let group = await getDetailsFromGroup(groupId)    //gets movie from elastic database
         group.totalDuration += movie.runtimeMins
         group.numMovies++
         group.movies.push(movie)
@@ -96,27 +74,20 @@ export default function () {
             .then( () => { return movie })
     }
 
-    async function updateGroup(group) {
-       // console.log("updateGroup")
-    }
+    async function updateGroup(userID, groupId, groupToCreate) {
+        let name = groupToCreate.title
+        console.log(groupToCreate)
+        let description = groupToCreate.description
+        let group = await getDetailsFromGroup(groupId) 
+        console.log(group)
+        group.title = name
+        group.description = description
+        return put(URI_MANAGER_GROUPS.addTo(groupId), group)
+            .then( () => { return group })
+        //post(URI_MANAGER_GROUPS.update(), group)
+        //    .then(body => { group.id = body._id; return group })
 
-    async function createUser(user) {
-        //console.log("/n elastic - createUser/n")
-        const query ={
-            "script": {
-                "source": "ctx._source.users.add(params.newUser)",
-                "lang": "painless",
-                "params": {
-                    "newUser": {
-                        id: user.token, 
-                        name: user.name
-                    }
-                }
-            }
-          }
-        return(post(URI_MANAGER_USERS.create())
-            .then(post(URI_MANAGER_USERS.addTo(user), query)
-                .then( () => { return newUser })))
+       // console.log("updateGroup")
     }
 
     async function deleteGroup(id) {
@@ -143,25 +114,11 @@ export default function () {
         .then( () => { return group })
         //return del(URI_MANAGER_MOVIES.delete(movieId), )
         //.then(body => body._id)
-        
         }
-
 
     function createGroupFromElastic(groupElastic) {
         let group = groupElastic._source
         group.id = groupElastic._id
         return group
     }
-
-    function createGroupFromElasticSendUser(groupElastic) {
-        let group = groupElastic._source
-        group.id = groupElastic._id
-        return group.ownerUser
-    }
-
-    function createUserFromElastic(userElastic) {
-        let user = userElastic._source
-        user.id = userElastic._id
-        return user
-    }    
 }

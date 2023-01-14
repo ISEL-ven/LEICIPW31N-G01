@@ -20,17 +20,20 @@ import serveFavicon from 'serve-favicon'
 import * as groupsData from './data/cmdb-data-mem.mjs'
 import * as usersData from './data/users-data.mjs'
 import elasticData from './data/cmdb-data-elastic.mjs'
+import elasticUsersData from './data/users-data-elastic.mjs'
 import * as moviesData from './data/cmdb-movies-data.mjs'
 import servicesInit from './services/cmdb-services.mjs'
 import apiInit from './web/api/cmdb-web-api.mjs'
 import siteInit from './web/site/cmdb-web-site.mjs'
+import usersSiteInit from './web/site/cmdb-users-site.mjs'
 
 // global constants ----------------------------------------------------------------
 const PORT = 3000
 const swaggerDocument = yaml.load('./docs/cmdb-api.yaml')
-const services = servicesInit(elasticData(), usersData, moviesData)
+const services = servicesInit(elasticData(), elasticUsersData(), moviesData)
 const api = apiInit(services)
 const site = siteInit(services)
+const users = usersSiteInit(services)
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
 // App defenitions -----------------------------------------------------------------
@@ -40,7 +43,7 @@ let app = express()
 app.use(cors())
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 app.use(express.json())
-app.use(express.urlencoded({extended: false}))
+app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 //app.use(morgan('dev'))
 app.use(serveFavicon(`${__dirname}/web/site/public/images/favicon-32x32.png`))
@@ -54,7 +57,6 @@ app.use(session({
 }))
 
 // Passport initialization --------------------------------------------------------
-//app.use(passport.authenticate('session'))
 app.use(passport.session())
 app.use(passport.initialize())
 
@@ -68,7 +70,10 @@ app.set('view engine', 'hbs')
 app.set('views', viewsPath)
 hbs.registerPartials(path.join(viewsPath, 'partials'))
 
-app.use(sessionMiddleware)
+//app.use(sessionMiddleware)
+
+// Middleware routes -----------------------------------------------------------------
+app.use ('/cmdb/groups', checkAuthentication)
 
 // Web API routes -------------------------------------------------------------------
 app.get('/groups', api.getGroups)
@@ -97,13 +102,14 @@ app.get('/cmdb/groups/:id/update', site.getUpdateGroupForm)
 app.post('/cmdb/groups/:id/:idMovie', site.addMovie)
 app.post('/cmdb/groups/:id/:idMovie/delete', site.deleteMovie)
 app.get('/cmdb/movies/:id', site.getMovieDetails)
-//app.get('/login', site.loginForm)
-//app.post('/login', site.validateLogin)
-//app.get('/register', site.registerForm)
-//app.post('/register', site.createUser)
-//app.get('/logout', site.logout)
-//app.post('/logout', site.logout)
-app.get('/commingsoon', site.commingSoon)
+
+app.get('/login', users.loginForm)
+app.post('/login', users.validateLogin)
+app.get('/register', users.registerForm)
+app.post('/register', users.createUser)
+app.get('/logout', users.logout)
+app.post('/logout', users.logout)
+//app.get('/commingsoon', site.commingSoon)
 
 app.get('/cmdb/search', site.getMovies)
 app.get('/cmdb/search/:idMovie', site.getMovie)
@@ -112,15 +118,15 @@ app.get('/cmdb/search/:idMovie', site.getMovie)
 // Start App -----------------------------------------------------------------------
 app.listen(PORT, () => console.log(`Server listening at http://localhost:${PORT}\nEnd setting up server`))
 
-// Route handling functions ---------------------------------------------------------
-function sessionMiddleware(req, rsp, next) {
-    req.session.token = req.session.token || crypto.randomUUID()
-    //req.session.counter = (req.session.counter || 0) + 1
-    //console.log(`Session counter: ${req.session.counter}`)
+// // Route handling functions ---------------------------------------------------------
+// function sessionMiddleware(req, rsp, next) {
+//     req.session.token = req.session.token || crypto.randomUUID()
+//     //req.session.counter = (req.session.counter || 0) + 1
+//     //console.log(`Session counter: ${req.session.counter}`)
 
-    //console.log(`Session token: ${req.session.token}`)
-    next()
-}
+//     //console.log(`Session token: ${req.session.token}`)
+//     next()
+// }
 
 /*function serializeUserDeserializeUser(user, done) {
     done(null, user)
@@ -129,14 +135,24 @@ function sessionMiddleware(req, rsp, next) {
 function serializeUser(user, done) {
     done(null, user)
 }*/
-passport.serializeUser(function(user, cb) {
-    process.nextTick(function() {
+
+//Passport inicialization
+passport.serializeUser(function (user, cb) {
+    process.nextTick(function () {
         cb(null, { id: user.id, username: user.username })
     })
 })
-  
-passport.deserializeUser(function(user, cb) {
-    process.nextTick(function() {
+
+passport.deserializeUser(function (user, cb) {
+    process.nextTick(function () {
         return cb(null, user)
     })
 })
+
+/* Middleware_Authentication */
+function checkAuthentication (req, rsp, next){
+    if(req.user){
+        return next()
+    }
+    rsp.redirect('/cmdb')
+}

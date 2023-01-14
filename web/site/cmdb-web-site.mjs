@@ -4,6 +4,7 @@
 //  - Invoque the corresponding operation on services
 //  - Generate the response in HTML format
 
+import { group } from "console"
 import movies from "../../data/cache/movies.mjs"
 import errors from "../../errors.mjs"
 
@@ -11,7 +12,7 @@ import toHttpResponse from '../api/response-errors.mjs'  // TODO não usar aqui 
 
 const ROOT = '/cmdb/groups'
 const HOME = '/cmdb/'
-const HAMMERED_TOKEN = '8bf716e7-e3af-4343-93e0-9c6edb7b8005'
+//const HAMMERED_TOKEN = '8bf716e7-e3af-4343-93e0-9c6edb7b8005'
 
 class View {
     constructor(name, data) {
@@ -29,11 +30,6 @@ export default function (services) {
     return {
         getRoot: getRoot,
         getHome: getHome,
-        commingSoon: commingSoon,
-        loginForm: loginForm,
-        validateLogin: validateLogin,
-        verifyAuthenticated: verifyAuthenticated,
-        logout: logout,
         getGroups: handleRequest(getGroupsInternal),
         getGroup: handleRequest(getGroupInternal),
         getNewGroupForm: handleRequest(getNewGroupForm),
@@ -41,8 +37,6 @@ export default function (services) {
         deleteGroup: handleRequest(deleteGroupInternal),        
         updateGroup: handleRequest(updateGroupInternal),
         getUpdateGroupForm: handleRequest(getUpdateGroupForm),
-        registerForm: registerForm,
-        createUser: createUserInternal,
         getMovie: handleRequest(getMoviesInternal),
         getMovieDetails : getMovieDetailsInternal,
         addMovie: addMovieInternal,  // FALTA PASSAR PELO HANDLER
@@ -50,10 +44,6 @@ export default function (services) {
 
         getMovies: handleRequest(getMoviesInternal),        
         
-    }
-
-    async function commingSoon(req, rsp) {
-        return rsp.render('commingsoon')
     }
 
     async function getRoot(req, rsp) {
@@ -77,9 +67,9 @@ export default function (services) {
 
     async function getGroupsInternal(req, rsp) {
         //const groups = await services.getGroupsWeb(req.session.token, req.query.q, req.query.skip, req.query.limit)
-        const groups = await services.getGroupsWeb(HAMMERED_TOKEN, req.query.q, req.query.skip, req.query.limit)
-        console.log("                                               GET GROUPS INTERNAL")
-        console.log(groups)
+        const groups = await services.getGroupsWeb(req.token, req.query.q, req.query.skip, req.query.limit)
+        //console.log("                                               GET GROUPS INTERNAL")
+        //console.log(groups)
        // console.log("getGroupsInternal");
        // console.log(groups);
         return new View('groups', { title: 'My playlists', groups: groups })
@@ -88,7 +78,7 @@ export default function (services) {
     async function getGroupInternal(req, rsp) {
         const groupId = req.params.id
         //const group = await services.getGroup(req.token, groupId)
-        const group = await services.getGroup(HAMMERED_TOKEN, groupId)
+        const group = await services.getGroup(req.token, groupId)
         // console.log("getGroupInternal");
         // console.log(group);
         return new View('groupdetail', group)
@@ -100,15 +90,14 @@ export default function (services) {
 
     async function deleteGroupInternal(req, rsp) {
         const groupId = req.params.id
-        //const group = await services.deleteGroup(req.token, groupId)
-        const group = await services.deleteGroup(HAMMERED_TOKEN, groupId)
+        const group = await services.deleteGroup(req.token, groupId)
         rsp.redirect(ROOT)
     }
 
     async function createGroupInternal(req, rsp) {
         //console.log(req.body)
         try {
-            const newGroup = await services.createGroup(HAMMERED_TOKEN, req.body)
+            const newGroup = await services.createGroup(req.token, req.body)
             //const newGroup = await services.createGroup(req.token, req.body)
             //rsp.redirect(`${ROOT}/${newGroup.id}`)
             rsp.redirect(`${ROOT}`)
@@ -122,16 +111,34 @@ export default function (services) {
 
     async function getUpdateGroupForm(req, rsp) {
 
+        const groupId = req.params.id
+        const group = await services.getGroup(req.token, groupId)
+
+        return rsp.render('groupEdit', group)
+    
     }
 
     async function updateGroupInternal(req, rsp) {
-        // TODO
+        const paramsId = req.params.id
+
+        try {
+            const newGroup = await services.updateGroup(req.token, paramsId, req.body)
+            
+            //const newGroup = await services.createGroup(req.token, req.body)
+            //rsp.redirect(`${ROOT}/${newGroup.id}`)
+            rsp.redirect(`${ROOT}`)
+        } catch (e) {
+            if (e.code == 1) {
+                return new View('newGroup', req.body)
+            }
+            throw e
+        }        
     }
 
     async function getMoviesInternal(req, rsp) {
         // console.log(`SEARCH MOVIES -> ${req.query}`)
-        const groups = await services.getGroups(HAMMERED_TOKEN)
-        const movies = await services.getMoviesByName(HAMMERED_TOKEN, req.query.q, req.query.skip, req.query.limit)      //gets all movies
+        const groups = await services.getGroups(req.token)
+        const movies = await services.getMoviesByName(req.token, req.query.q, req.query.skip, req.query.limit)      //gets all movies
         movies.map(x => x.groups = {groups})
         rsp.render('movies', {movies: movies})
     }
@@ -139,15 +146,15 @@ export default function (services) {
     async function getMovieDetailsInternal(req, rsp) {
        
         const idMovie =req.params.id
-        const movie = await services.getMovieDetails(HAMMERED_TOKEN,idMovie)
-        console.log(                            "_MOOOOOVIEEEEEEEEE_________")
-        console.log(movie)
+        const movie = await services.getMovieDetails(req.token,idMovie)
+        // console.log(                            "_MOOOOOVIEEEEEEEEE_________")
+        // console.log(movie)
         rsp.render("movie-detail", movie)
         // TODO
     }
 
     async function deleteMovieInternal(req, rsp) {
-        const userToken = HAMMERED_TOKEN
+        const userToken = req.token
         const groupId = req.params.id
         const movieId = req.params.idMovie
         const groupUpdated = await services.deleteMovie(userToken, groupId, movieId)
@@ -157,19 +164,9 @@ export default function (services) {
         rsp.render(`groupdetail`, groupUpdated)
     }
 
-    async function createUserInternal(req, rsp) {
-        const name = req.body.username
-        const token = req.session.token
-        const user = await services.createWebUser(name, token)
-        //console.log(`createUserInternal: ${user.name}`)
-        req.user = user
-        req.session[user] = user
-        getHome(req, rsp)
-    }
-
     async function addMovieInternal(req, rsp) {
         //console.log(req)
-        const userToken = HAMMERED_TOKEN
+        const userToken = req.token
         const groupId = req.params.id
         const movieId = req.params.idMovie
         const movie = await services.addMovie(userToken, groupId, movieId)
@@ -177,48 +174,7 @@ export default function (services) {
         getHome(req, rsp)
         
     }
-
-    async function loginForm(req, rsp) {
-        rsp.render('login')      
-    }
-
-    async function registerForm(req, rsp) {
-        rsp.render('register')      
-    }
-      
-      
-    async function validateLogin(req, rsp) {
-        //console.log("validateLogin")
-        if(validateUser(req.body.username, req.body.password)) {
-            const user = {
-                name: req.body.username,
-                groups: req.body.groups,
-                dummy: "dummy property on user"
-            }
-            //console.log(user)
-            req.login(user, () => rsp.redirect('/cmdb/'))
-        }
-        
-        async function validateUser(username, password) { 
-            // TODO #######################################
-            return true 
-        }
-    }
     
-    
-    async function verifyAuthenticated(req, rsp, next) {
-        return next()
-        /*if(req.user) {
-            return next()
-        }
-        //rsp.redirect('/login')
-        loginForm(req, rsp)*/
-    }
-    
-    async function logout(req, rsp, next) {
-        req.logout((err) => rsp.redirect('/cmdb/'))
-    }
-
      // Auxiliary functions ----------------------------------------------------------------
      function handleRequest(handler) {
         

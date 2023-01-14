@@ -1,18 +1,17 @@
 <div>
     
     <form method="POST" action="/cmdb/groups/{{id}}/update">
-        <li><a class="dropdown-item"></a>
-            <b>{{title}}</b> 
-                
-           <input type="text" name="title" id="title" value="{{title}}" class="form-control form-control-lg" />
-
-        </li>
-         <li><a class="dropdown-item"></a>
-            <b>{{description}}</b> 
-                
-            <textarea name="description" id="description" value="{{description}}" class="form-control form-control-lg"></textarea>
-        </li>
-        <button type="submit" class="btn btn-danger">Confirm</button>
+        <a class="dropdown-item"></a>    
+          <label class="form-label" for="title">Title</label>
+           <input type="text" name="title" id="title" value="{{title}}" placeholder="{{title}}" required class="form-control form-control-lg" />
+        
+         <a class="dropdown-item"></a>
+         <label class="form-label" for="description">Description</label>
+            <textarea name="description" id="description" value="{{description}}" placeholder="{{description}}" class="form-control form-control-lg">
+            </textarea>
+             
+        <br><button type="submit" class="btn btn-danger">Confirm</button>
+        
     </form>       
   
   
