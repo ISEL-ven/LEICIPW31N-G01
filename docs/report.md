@@ -1,12 +1,12 @@
 # **_Chelas Movies Database_**
 ![cover](https://github.com/isel-leic-ipw/cmdb-ipw-leic2223i-ipw31d-g02/blob/main/docs/images_doc/cover.png)
 
-Turma LEIC31D - Grupo 2
+Turma LEIC31N - Grupo 1
 
 Alunos:  
-Teresa Gaspar     n.º 47190  
-Nicolau Valente   n.º 49480  
-Delcio Augusto    n.º 44829  
+Nuno Venâncio    n.º 45824  
+Miguel Queluz    n.º 45837  
+Darlene Horta    n.º 47813
 
 
 Docente:  
@@ -16,9 +16,11 @@ Professor Luís Falcão
 
 ## Introdução
 
-Com o intuito de aplicar os conhecimentos relativos a HTTP e desenvolvimento de uma aplicação web foi nos proposto a criação da aplicação CMDB (Chelas Movies DataBase), desenvolvida ao longo do semestre. Esta aplicação fornece acesso, através de uma interface web (_hipermedia_) a algumas das funcionalidades fornecidas pelo site [IMDB] ([https://www.imdb.com/](https://www.imdb.com/)), o desenvolvimento foi feito de forma incremental, tendo tipo 3 ciclos de desenvolvimento, divididos em três partes (Parte 1, Parte 2 e Parte 3).
+Este trabalho foi-nos proposto, no âmbito da disciplina de Introdução à Programação Web (IPW), a criação de uma base de dados de filmes, Chelas Movies Database (CMDB), num web site criado através da linguagem de JavaScript, html e http. 
+Este projeto foi construído em três fases, que nos levariam a passar por todas as fases da criação de uma aplicação web, ou seja, conhecermos e desenvolvermos a CMDB de raiz. Primeiramente, foi criada a aplicação internamente, onde iriamos ter todos os módulos necessários para a comunicação interna, cmdb-server, cmdb-web-api, cmdb-services, imdb-movies-data, cmdb-data-mem, posteriormente fazer a interligação da API do IMDB à nossa aplicação, neste caso os 250 melhores filmes, bem como colocar uma barra de pesquisa, para procurar filmes pelo seu nome, e conseguir fazer a gestão da criação de grupos, podendo editá-los, listá-los, removê-los, adicionar filmes pretendidos aos grupos previamente criados, e obter detalhes dos grupos, com descrição, duração total dos filmes que estariam inseridos nesse grupo. 
+Por fim, o objetivo passou por fazer a interligação do servidor interno com a web API, a aplicação teria a possibilidade de ser acedida por utilizadores, que após estarem registados e devidamente autenticados, com os métodos GET, POST, PUT e DELETE poderiam gerir através da interface web, a sua base de dados de grupos de filmes.
 
-Posto isto, aqui explicamos alguns dos procedimentos no desenvolver da aplicação CMDB, estando já na parte 3 do desenvolvimento.
+
 
 ## Estrutura da aplicação
 ### Componente do cliente:
@@ -92,13 +94,11 @@ Para iniciar a aplicação basta correr a instrução seguinte no terminal do fi
 Para aceder à aplicação através da web, basta na barra de pesquisas do navegador inserir: [http://localhost:1996/home](http://localhost:1996/home)  e conseguirá assim ter acesso e usar a nossa aplicação.
 
 
-**Para correr os testes unitarios?**
-Para correr o teste bastara executar o seguinte comando “npm run test” no terminal do ficheiro do módulo da aplicação.  
-  
-
 ## Conclusão
 
-Posto isto, foi nos possível desenvolver uma aplicação capaz de assegurar as funcionalidades propostas, tendo para isto implementado e consolidado os conhecimentos apreendidos em aula relativos ao desenvolvimento de uma aplicação Web.
+Após a realização do CMDB, sentimos que a mesma contém todas as funções básicas necessárias à implementação desejada pelo professor, no entanto por falta de tempo, não conseguimos implementar os testes unitários, o que poderá ser uma proposta para uma futura melhoria desta aplicação. 
+Sentimos que o projeto foi um desafio gratificante, que contribuiu bastante para o desenvolvimento das nossas capacidades de programação numa nova linguagem. 
+
 
 ## YAML – Server API Documentation
 ```yaml
