@@ -47,7 +47,7 @@ Esta aplicação foi desenvolvida em nodeJS, fazendo uso do Express (web server)
 A aplicação inicia no módulo CMDB-server este vai carregar os módulos utilizados, defenir constantes, usar middlewares e definir as rotas para uso da componente web-api e web-site.
 
 A componente web, de manipulação e tratamento de pedidos e respostas HTTP, divide-se em duas subcomponentes principais,  web-api e web-site.
-A web-api para tratar pedidos e gerar respostas relativos à APIm no formato JSON e a web-site para a mesma finalidade mas usando o formato HTTP para gerar as respostas. Nesta última, faszendo e uso do motor de vistas (view engine) Handlebars, temos também o modulo views, onde são feitas dinâmicamente, todas as páginas web de resposta ao cliente. Para a validação e obtenção de dados, tanto a componente web-api como a web-site se ligam por sua vez à componente services.
+A web-api para tratar pedidos e gerar respostas relativos à API no formato JSON e a web-site para a mesma finalidade mas usando o formato HTTP para gerar as respostas. Nesta última, fazendo e uso do motor de vistas (view engine) Handlebars, temos também o modulo views, onde são feitas dinâmicamente, todas as páginas web de resposta ao cliente. Para a validação e obtenção de dados, tanto a componente web-api como a web-site se ligam por sua vez à componente services.
 
 Este módulo cmdb-services, é onde se encontra toda a lógica e regras da aplicação, fazendo assim de ligação entre as componentes web e a componente data. É onde são analizados e filtrados os pedidos, e formatadas as respostas dos dados obtidos pela camada seguinte.
 
@@ -55,12 +55,6 @@ O último módulo, data, é composto por três submódulos lógicos, um utilizad
 
 ![server_structure](https://github.com/isel-leic-ipw/cmdb-ipw-leic2223i-ipw31n-g01/blob/main/docs/images/server.jpg)  
 Figura 2 - Esquema estrutura da aplicação do servidor
-
-## Data Storage Design - ElasticSearch
-
-Para a implementação da base de dados  _ElasticSearch,_  criámos o módulo elastic-http.mjs, este será responsável pela interação entre a base de dados e as nossas funções sendo assim implementadas neste mesmo funções que serão utilizadas pelos modulos cmdb-groups-data-elastic.mjs e cmdb-user- data-elastic.mjs. Estes, ao importarem o modulo elastic-http.mjs devem passar o nome do indice (“groups” ou “users”) ao qual queremos aceder através da base de dados.
-
-Nota: todos os objetos criados pelo elasticSearch inicializam se sempre com o seguinte caracter “_” acompanhado com o nome do respetivo objeto, em JSON. Os objectos que iremos inserir/atualizar/apagar encontram se no seguinte array data.hits.hits , em que data representa o objeto retornado da base de dados, este tem uma propriedade com o nome hits que é um objeto que contem uma propriedade também de nome hits que é um array de objetos, através deste array conseguimos aceder a propriedade “_source” onde estará guardada a informação pretendida.
 
 
 ## Instruções de instalação e execução da aplicação
