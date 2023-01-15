@@ -86,6 +86,7 @@ Nota: todos os objetos criados pelo elasticSearch inicializam se sempre com o se
 * yamljs - suporte a YAML
 
 **Configuração do Elasticsearch**
+
 É necessário ter o elasticsearch instalado e configurado para correr a aplicação.
 Para tal, escolher o instalador para a plataforma pretendida em https://www.elastic.co/downloads/elasticsearch
 Depois de instalado é necessário editar o ficheiro elasticsearch.yml, onde diz:
