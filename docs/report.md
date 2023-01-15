@@ -1,5 +1,5 @@
 # **_Chelas Movies Database_**
-![cover](https://github.com/isel-leic-ipw/cmdb-ipw-leic2223i-ipw31d-g02/blob/main/docs/images_doc/cover.png)
+![cmdb/screenshot](https://github.com/isel-leic-ipw/cmdb-ipw-leic2223i-ipw31n-g01/blob/main/docs/images/cmdb.png)
 
 Turma LEIC31N - Grupo 1
 
@@ -23,31 +23,37 @@ Por fim, o objetivo passou por fazer a interligação do servidor interno com a 
 
 
 ## Estrutura da aplicação
-### Componente do cliente:
-Na apresentação da aplicação ao cliente, temos uma estrutura semelhante à apresentada na figura abaixo, sendo o cliente inicialmente redirecionado para uma página inicial não autenticada, sendo sempre redirecionado para esta sempre que tentar aceder a páginas autenticadas sem autenticação.
+### Componente do cliente (web-site):
+Na apresentação da aplicação ao cliente, a estrutura é uma aplicação web na qual é necessário efetuar registo / autenticação para ter acesso às componetes de criar listas de filmes, adicionar filmes às mesmas e toda a gestão quer das listas quer dos filmes.
 
-Nesta página inicial (_home_) o cliente tem a possibilidade de se autenticar, criando uma conta (_signup_) ou iniciando sessão (_login_), caso introduza dados inválidos é apresentado um erro para o notificar do acontecimento.
+A página inicial do web site ('/') redireciona o utilizador para a página inicial da aplicação propriamente dita ('/cmdb/), sendo que aqui apenas é possível efutar o registo e o login.
 
-Tendo também a possibilidade de pesquisar filmes pelo nome do filme (_SearchMovie_) ou pelos no topo 250 (_top250_), conseguindo ver o detalhe dos filmes apresentados se os escolher.
+Depois de autorizado, o utilizador pode criar / editar / apagar listas de filmes (grupos), às quais é possível adicionar filmes.
 
-Estando autenticado, o cliente é redirecionado para uma nova página inicial (_homeAuth_) onde terá uma abordagem mais personalizada, tendo agora as possibilidades de aceder aos seus grupos, pesquisar filmes por nome ou ver os do topo 250 assim como de fechar sessão (_logout_) sendo deste modo redirecionado para a página não autenticada.
+Estas listas de filmes mostram o título, a descrição, o número de filmes adicionados e o tempo em minutos da totalidade dos filmes.
 
-Caso tente aceder aos grupos, é redirecionado para a página de grupos onde consegue ver os seus grupos caso os tenha, tendo a possibilidade de criar mais, tendo grupos, ao clicar neles consegue aceder a informação do grupo, nomeadamente, aos filmes e à duração total dos filmes, sendo cada filme possível de mostrar detalhes e de ser removido, tem também a capacidade de editar detalhes do grupo e de adicionar filmes (sendo que esta adição é feita através do primeiro filme que o sistema encontre com o nome fornecido).
+Para adicionar filmes a listas o utilizador utiliza um form de pesquisa, sendo que do resultado da mesma, em cada filme, está uma lista dropdown dos grupos aos quais é possível adicionar o filme pretendido.
 
-![client_structure](https://github.com/isel-leic-ipw/cmdb-ipw-leic2223i-ipw31d-g02/blob/main/docs/images_doc/client_structure.jpg)  
-Figura 1 - Esquema estrutura da aplicação para clientes
+Na figura abaixo é possível visualizar a extrutura da aplicação disponível ao cliente
 
-  
-Para as pesquisas de filmes feitas através da página inicial autenticada, o procedimento é semelhante aquando de um cliente não autenticado sendo que no autenticado tem a possibilidade de adicionar filmes pesquisados a grupos existentes.
+![client_structure](https://github.com/isel-leic-ipw/cmdb-ipw-leic2223i-ipw31n-g01/blob/main/docs/images/client.jpeg)  
+Figura 1 - Esquema estrutura da aplicação do lado clientes
 
 
-### Componente do servidor:
+### Extrutura da aplicação:
 
-À semelhança da componente do cliente, a do servidor consiste na lógica por detrás dos módulos da aplicação, sendo assim apresentada na figura abaixo. A aplicação é iniciada através do módulo  CMDB-server que é o nosso ponto de entrada da aplicação este vai avaliar o que o cliente está a tentar fazer e caso estejamos a usar o nosso site, acede aos módulos  CMDB-users-site  (para informação relativa aos users) e  CMDB-web-site  para as restantes relativas ao nosso site, ambos estes trabalham a informação que recebem e são responsáveis por lidar com as respostas HTML deste modo recorre ao módulo  CMDB-services responsável pela lógica da nossa aplicação para obter a informação a devolver.
+Esta aplicação foi desenvolvida em nodeJS, fazendo uso do Express (web server), Handlebars (view engine), Passport (user authentication) e Elasticsearch (database)
 
-Por sua vez o módulo  CMDB-services, consoante os dados que necessita recorre ao módulo  Imdb-movies-data para informação relativa aos filmes e ao módulo data para informação relativa a grupos e usuários. No módulo data exitem duas implementações uma inicial (internal) que guarda a informação do site localmente e outra posterior (elastic) que consiste numa base de dados externa, de modo a não sobrecarregar o nosso programa, ambos estes módulos têm dois submódulos, um referente aos dados dos usuários e outro aos dados dos grupos.
+A aplicação inicia no módulo CMDB-server este vai carregar os módulos utilizados, defenir constantes, usar middlewares e definir as rotas para uso da componente web-api e web-site.
 
-![server_structure](https://github.com/isel-leic-ipw/cmdb-ipw-leic2223i-ipw31d-g02/blob/main/docs/images_doc/server_structure.jpg)  
+A componente web, de manipulação e tratamento de pedidos e respostas HTTP, divide-se em duas subcomponentes principais,  web-api e web-site.
+A web-api para tratar pedidos e gerar respostas relativos à APIm no formato JSON e a web-site para a mesma finalidade mas usando o formato HTTP para gerar as respostas. Nesta última, faszendo e uso do motor de vistas (view engine) Handlebars, temos também o modulo views, onde são feitas dinâmicamente, todas as páginas web de resposta ao cliente. Para a validação e obtenção de dados, tanto a componente web-api como a web-site se ligam por sua vez à componente services.
+
+Este módulo cmdb-services, é onde se encontra toda a lógica e regras da aplicação, fazendo assim de ligação entre as componentes web e a componente data. É onde são analizados e filtrados os pedidos, e formatadas as respostas dos dados obtidos pela camada seguinte.
+
+O último módulo, data, é composto por três submódulos lógicos, um utilizado anteriormente para o armazenamento e pesquisa de dados internos, na memoria, outro para lidar com chamadas http à API da webapp IMDB, e, nesta última fase um que utiliza a base de dados não relacional, Elasticsearch. Tanto o submódulo da mamoria interna bem como o do elastic search são ainda subdivididos em dados referentes a utilizadores e dados referentes a grupos de filmes de utilizadores.
+
+![server_structure](https://github.com/isel-leic-ipw/cmdb-ipw-leic2223i-ipw31n-g01/blob/main/docs/images/server.jpg)  
 Figura 2 - Esquema estrutura da aplicação do servidor
 
 ## Data Storage Design - ElasticSearch
@@ -56,43 +62,57 @@ Para a implementação da base de dados  _ElasticSearch,_  criámos o módulo el
 
 Nota: todos os objetos criados pelo elasticSearch inicializam se sempre com o seguinte caracter “_” acompanhado com o nome do respetivo objeto, em JSON. Os objectos que iremos inserir/atualizar/apagar encontram se no seguinte array data.hits.hits , em que data representa o objeto retornado da base de dados, este tem uma propriedade com o nome hits que é um objeto que contem uma propriedade também de nome hits que é um array de objetos, através deste array conseguimos aceder a propriedade “_source” onde estará guardada a informação pretendida.
 
-### Implementação
 
-Passamos a explicar como é feita a implementação do modulo elastic-http.mjs
+## Instruções de instalação e execução da aplicação
 
-createIndice()->função que efetua um pedido PUT em que no seu uri contém o nome do índice passado pelo modulo que importou esta função;
+**Dependências - Modulos usados**
+cookie-parser - análise e manipulação de cookies
+cors - prevenção de ataques por Cross Origin Resource Sharing
+crypto - biblioteca de criptografia para geração de números 
+express - framework web, server
+express-session - para manipular sessões
+hbs - handlebars, motor de vistas (view engine)
+mocha - testes
+morgan - visualização de pedidos HTTP e códigos de resposta em modo de desenvolvimento
+node-fetch - para efetuar pedidos HTTP
+nodemon - para monitorizar alterações no código quando a app se encontra em desenvolvimento
+open-api - definição da API em YAML
+passport - autenticação
+passport-local - autenticação local
+serve-favicon - mostra favicon na página web
+session-file-store - guarda em ficheiro dados relativos ás sessões
+swagger - visualização da API
+swagger-ui-express - visualização da API
+yamljs - suporte a YAML
 
-CreateUpdateDocument(id,info) -> função que executa um pedido PUT em que recebe o id do documento e em info o conteudo que será inserido ou atualizado no respetivo documento.
+**Configuração do Elasticsearch**
+É necessário ter o elasticsearch instalado e configurado para correr a aplicação.
+Para tal, escolher o instalador para a plataforma pretendida em https://www.elastic.co/downloads/elasticsearch
+Depois de instalado é necessário editar o ficheiro elasticsearch.yml, onde diz:
+```yml
+# Enable security features
+xpack.security.enabled: true
+```
+escrever:
+```yml
+# Enable security features
+xpack.security.enabled: false
+```
 
-GetAllDocuments()-> função que executa um pedido GET, retorna o conteúdo presente para o índice passado, podendo ser no nosso caso “users” ou “groups”.
+Para a criação dos indexes user e groups é utilizado o Postman (http://postman.com), onde são efetucados:
+PUT http://localhost:9200/users
+PUT http://localhost:9200/groups
 
-getDocumentById(id) -> função que executa um pedido GET, retorna o conteúdo do id passado, podendo este representar o id do user ou do grupo
 
-deleteDocument(id) -> função que executa um pedido DELETE para o respetivo documento com o id passado
-
-GetCurrID()-> função que executa um pedido GET e retorna um objeto JSON com o qual, acedendo à propriedade hits (objeto), este tem a propriedade total que é também um objeto que tem a propriedade “value” cujo valor retornamos, este simboliza um id de users ou grupos
-
-ExtractInfoFromElastic(data) -> função que recebe com parâmetro um objeto, que terá uma propriedade “hits” (objeto) que conterá uma outra propriedade “hits”, sendo esta um array de objetos, a função retorna este array.
-
-Testes Unitários  
-Relativamente a utilização e criação de testes criamos testes que estão a testar o modulo cmdb-services.mjs  
-Em anexo encontrara o comando necessário para executar os mesmos
-
-## Instruções de execução da aplicação
-
-**Para executar a aplicação?**
-Deverá ter instalado previamente o elasticSearch estando o mesmo a correr em paralelo numa janela da linha de comandos, caso contrário a aplicação não funcionará.
-
-Caso não tenha instalado os módulos necessários para a execução da aplicação, deve instalar os módulos em falta, caso esteja a usar vscode basta executar no terminal referente ao ficheiro da aplicação os seguintes comandos, por ordem:
-
-"npm install express express-handlebars yamljs cors cookie-parser express-session hbs node-fetch passport mocha "
-
-Para iniciar a aplicação basta correr a instrução seguinte no terminal do ficheiro do módulo da aplicação:
-
-"node cmdb-server.mjs".
-
-Para aceder à aplicação através da web, basta na barra de pesquisas do navegador inserir: [http://localhost:1996/home](http://localhost:1996/home)  e conseguirá assim ter acesso e usar a nossa aplicação.
-
+**Para executar a aplicação**
+```bash
+npm install
+```
+comando que instalará todos os módulos de que a aplicação depende, seguido de
+```bash
+node cmdb-server.mjs
+```
+A aplicação será acecível num browser ou outro cliente HTTP em [http://localhost:3000/](http://localhost:3000)
 
 ## Conclusão
 
@@ -102,575 +122,548 @@ Sentimos que o projeto foi um desafio gratificante, que contribuiu bastante para
 
 ## YAML – Server API Documentation
 ```yaml
-openapi: "3.0.2"
+openapi: 3.0.1
 info:
-  title: CMDB APP
-  description: CMDB API
+  title: CMDB API
+  description: API for Chelas Movie Data Base
   contact:
-    email: you@your-company.com
+    email: a45824@alunos.isel.pt #a45837@alunos.isel.pt, a47813@alunos.isel.pt
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   version: 1.0.0
 servers:
   - description: Localhost server for testing API
-    url: http://localhost:1996
+    url: http://localhost:3000
 
 tags:
-  - name: Movies
-  - name: Groups
-  - name: Users
+- name: users   # user name
+- name: groups  # define groups
+- name: search  # search movies: top250 or by name 
 
 paths:
   /users:
     post:
       tags:
-        - Users
+      - users
       summary: adds a user
-      description: Creats and Adds a user to the system
+      description: Adds a user to the system
       operationId: addUser
       requestBody:
-        description: User to  creat and add
+        description: User to add
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/NewUser"
-        required: true 
+              $ref: '#/components/schemas/NewUser'
+        required: false
       responses:
         201:
           description: user created
-          content:
+          content: 
             application/json:
               schema:
-                required:
-                  - token
-                type: object
-                properties:
-                  token:
-                    type: string
-                    format: uuid
+                $ref: '#/components/schemas/NewGroupCreated'
         400:
           description: Invalid input, object invalid
           content: {}
       x-codegen-request-body-name: user
-  
-  /movies:
+  /groups:
     get:
       tags:
-        - Movies
-      summary: lists Most Popular movies
-      description: returns list of most popular movies in IMDB, can have a limit of movies returned, being max 250
-      operationId: getMostPopular
+      - groups
+      summary: get groups
+      description: By passing in the appropriate options, you can search for available
+        groups
+      operationId: getGroups
       security:
         - bearerAuth: []
       parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: limit
-          in: query
-          description: maximum number of movies to return
-          schema:
-            maximum: 250
-            minimum: 0
-            type: integer
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - name: q
+        in: query
+        description: pass an optional search string for looking up groups with that text
+        schema:
+          type: string
+      - name: skip
+        in: query
+        description: number of records to skip for pagination
+        schema:
+          minimum: 0
+          type: integer
+      - name: limit
+        in: query
+        description: maximum number of records to return
+        schema:
+          maximum: 50
+          minimum: 0
+          type: integer
       responses:
         200:
-          description: list of most popular movies
+          description: search results matching criteria
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/moviesResult"
+                  $ref: '#/components/schemas/Group'
         400:
           description: bad input parameter
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/InvalidRequest"
-
-  /movies/{movieName}:
-    get:
-      tags:
-        - getMovie
-      summary: Get a movie given its name
-      description: Get a movie given its name
-      operationId: getMovie
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: Authorization
-          in: header
-          schema:
-            type: string
-            format: uuid
-        - name: movieName
-          in: path
-          description: Name of movie that to be fetched
-          required: true
-          schema:
-            type: string
-        - name: limit
-          in: query
-          description: campo opcional retornará no maximo 250 filmes correspondentes a este nome
-          required: false
-          schema:
-            maximum: 250
-            minimum: 0
-            type: integer
-      responses:
-        200:
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/moviesResult"
-        400:
-          description: Invalid movieName supplied
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvalidRequest"
-                example: Invalid movieName supplied
-        404:
-          description: movieName not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvalidRequest"
-                example: movieName Not found
-
-  /groups:
-    get:
-      tags:
-        - groups
-      summary: get all groups
-      description: get available groups # with the current user  # 
-      operationId: getAllGroups
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        200:
-          description: lista todos os grupos de filmes
-          content:
-            application/json:
-              schema:
-                type: object
+                type: array
                 items:
-                  $ref: "#/components/schemas/groupsResult"
-            
-        400:
-          description: bad input parameter
+                  $ref: '#/components/schemas/InvalidRequest'
+        404:
+          description: not found 
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/InvalidRequest"
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotFound'
     post:
       tags:
-        - Groups
+      - groups
       summary: adds a group
-      description: adds a group to the system
-      operationId: createGroup
+      description: Adds a group of a user to the system
+      operationId: addGroup
       security:
         - bearerAuth: []
       parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
       requestBody:
         description: Group to add
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GroupRequest"
-        required: true 
+              $ref: '#/components/schemas/NewGroup'
+        required: false
       responses:
         201:
-          description: group created
+          description: Group created
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewGroupCreated'
+        400:
+          description: Invalid input, object invalid
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Group"
-
-        400:
-          description: Invalid input, object invalid
-          content: {}
-      x-codegen-request-body-name: user
-
-  /groups/{groupID}:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NewGroup'
+      x-codegen-request-body-name: group
+  /groups/{groupId}:
     get:
       tags:
-        - Groups
+      - groups
       summary: Get a group given its id
       description: Get a group given its id
-      operationId: getGroup
+      operationId: getGroupById
       security:
         - bearerAuth: []
       parameters:
-        - name: Authorization
-          in: header
-          schema:
-            type: string
-            format: uuid
-            minimum: 0
-          required: true
-        - name: groupID
-          in: path
-          description: ID of group that to be fetched
-          required: true
-          schema:
-            type: integer
-            minimum: 0
+      - name: Authorization
+        in: header
+        schema:
+          type: string
+          format: uuid
+      - name: groupId
+        in: path
+        description: ID of group that to be fetched
+        required: true
+        schema:
+          type: integer
+          minimum: 1
       responses:
         200:
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GroupRequest"
-              
+                $ref: '#/components/schemas/Group'
         400:
-          description: Invalid groupID supplied
-          content:
+          description: Invalid ID supplied
+          content: 
             application/json:
-              schema:
-                $ref: "#/components/schemas/InvalidRequest"
-                example: Invalid groupID supplied
+              schema: 
+                $ref: '#/components/schemas/InvalidRequest'
         404:
           description: Group not found
-          content:
+          content: 
             application/json:
-              schema:
-                $ref: "#/components/schemas/InvalidRequest"
-                example: Group Not found
+              schema: 
+                $ref: '#/components/schemas/NotFound'
     put:
       tags:
-        - Groups
-      summary: updates a Group
-      description: Updates a Group with ID in the system
+      - groups
+      summary: updates a group
+      description: Updates a Group in the system
       operationId: updateGroup
       security:
         - bearerAuth: []
       parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: groupID
-          in: path
-          description: ID of the group to be updated
-          required: true
-          schema:
-            type: integer
-            minimum: 0
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: GroupId
+        in: path
+        description: ID of the group to be updated
+        required: true
+        schema:
+          type: integer
       requestBody:
-        description: Name and Description to updated 
+        description: Group to update
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GroupRequest"
-        required: true
+              $ref: '#/components/schemas/NewGroup'
+        required: false
       responses:
         201:
           description: group updated
           content:
-           application/json:
+            application/json:
               schema:
-                $ref: "#/components/schemas/GroupRequest"
+                $ref: '#/components/schemas/Group'
+        400:
+          description: Invalid ID supplied
+          content: 
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/InvalidRequest'
         404:
-          description: group not found
-          content: {}
+          description: Group not found
+          content: 
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/NotFound'
+      x-codegen-request-body-name: group
     delete:
       tags:
-        - Groups
+      - groups
       summary: Delete a group by ID
       description: Delete a group by ID
       operationId: deleteGroup
       security:
         - bearerAuth: []
       parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-            format: uuid
-            minimum: 0
-        - name: groupID
-          in: path
-          description: ID of the group to be deleted
-          required: true
-          schema:
-            type: integer
-            minimum: 0
+      - name: groupId
+        in: path
+        description: ID of the group to be deleted
+        required: true
+        schema:
+          type: integer
       responses:
         200: 
-          description: :Deletec successful
-          content: {}
+          description: Group deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
         400:
           description: Invalid ID supplied
-          content: {}
+          content: 
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/InvalidRequest'
         404:
-          description: group not found
-          content: {}
-
-  /groups/{groupID}/{movieID}:
+          description: Group not found
+          content: 
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/NotFound'
+  /search:
+    get:
+      tags:
+      - search
+      summary: get movies
+      description: By passing in the appropriate options, you can search for available
+        movies
+      operationId: getMovies
+      security:
+        - bearerAuth: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - name: q
+        in: query
+        description: pass an optional search string for looking up movies with that title
+        schema:
+          type: string
+      - name: skip
+        in: query
+        description: number of records to skip for pagination
+        schema:
+          minimum: 0
+          type: integer
+      - name: limit
+        in: query
+        description: maximum number of records to return
+        schema:
+          maximum: 250
+          minimum: 0
+          type: integer
+      responses:
+        200:
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Search'
+        400:
+          description: bad input parameter
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InvalidRequest'
+        404:
+          description: Movie not found
+          content: 
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/NotFound'
+  /groups/{groupId}{movieId}:
     put:
       tags:
-        - Groups
-      summary: updates a Group add a movieID
-      description: Updates a Group with ID and push the movieID in that group in the system
-      operationId: addMovieToGroup
+      - movies
+      summary: adds a movie to a group
+      description: Adds a movie to a group of a user to the system
+      operationId: addMovie
       security:
         - bearerAuth: []
       parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-            format: uuid
-            example: 123
-        - name: groupID
-          in: path
-          description: ID of the group to be updated
-          required: true
-          schema:
-            type: integer
-            minimum: 0
-        - name: movieID
-          in: path
-          description: ID of the movie to be add
-          required: true
-          schema:
-            type: integer
-            minimum: 0
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: groupId
+        in: path
+        description: ID of group that to be fetched
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+      - name: movieId
+        in: path
+        description: ID of group that to be fetched
+        required: true
+        schema:
+          type: integer
+          minimum: 1
       responses:
         201:
-          description: group updated
-          content: {}
+          description: Movie added
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewMovieAdded'
         400:
-          description: Invalid ID supplied
-          content: {}
-        404:
-          description: group not found or movie not found
-          content: {}
+          description: Invalid input, object invalid
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InvalidRequest'
+      x-codegen-request-body-name: group
     delete:
       tags:
-        - Groups
-      summary: remove o filme ao grupo em causa
-      description: apaga o filme correspondente no grupo correspondente
-      operationId: deleteMoviefromGroup
+      - movies
+      summary: Delete a movie from a group by ID
+      description: Delete a movie by ID
+      operationId: deleteMovie
       security:
         - bearerAuth: []
       parameters:
-        - name: groupID
-          in: path
-          description: ID of the group to be updated
-          required: true
-          schema:
-            type: integer
-        - name: movieID
-          in: path
-          description: ID of the movieID to be deleted
-          required: true
-          schema:
-            type: integer
+      - name: groupId
+        in: path
+        description: ID of the group that contains the movie to delete
+        required: true
+        schema:
+          type: integer
+      - name: movieId
+        in: path
+        description: ID of the movie to delete
+        required: true
+        schema:
+          type: integer
       responses:
+        200: 
+          description: Movie deleted
+          content: 
+            application/json:
+              example:
+                { status: "group with id 123 deleted" } 
         400:
           description: Invalid ID supplied
           content: {}
         404:
-          description: group not found
-          content: {}
-
+          description: Movie not found
+          content: {}  
 components:
   securitySchemes:
-    bearerAuth: # arbitrary name for the security scheme
+    bearerAuth:            # arbitrary name for the security scheme
       type: http
       scheme: bearer
-      bearerFormat: JWT    # optional, arbitrary value for documentation purposes
-  
   schemas:
-  
+    Group:
+      required:
+      - id
+      - title
+      - description
+      - userId
+      - totalDuration
+      - numMovies
+      - movies
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Western
+        description:
+          type: string
+          example: playlist of western movies
+        userId:
+          type: integer
+        numMovies:
+          type: integer
+        totalDuration:
+          type: integer
+        movies:
+          type: object
+          properties:
+            name:
+              type: string
+              example: The Good, the Bad and the Ugly (1966)
+            duration:
+              type: integer
+              example: 90
+    NewGroup:
+      required:
+      - title
+      - description
+      - userId
+      type: object
+      properties:
+        title:
+          type: string
+          example: Western
+        description:
+          type: string
+          example: playlist of western movies
+        userId:
+          type: integer
     NewUser:
       required:
-        - userName
+      - userName
       type: object
       properties:
         userName:
           type: string
-          example: Joaquim
-
-    moviesResult:
-      type: object
-      properties:
-        movies:
-          type: array
-          items:
-            $ref: "#/components/schemas/movieResult"
-
-    movieResult:
-      type: object
-      properties:
-        movieID:
-          type: integer
-          minimum: 0
-        movieTitle:
-          type: string
-          example: "Game of Thrones"
-        movieDuration:
-          type: integer
-          minimum: 0
-
-    groupsResult:
+          example: joao
+    NewUserCreated:
       required:
-        - userId
+        - status
+        - user
       type: object
       properties:
-        userId:
-          type: integer
-          minimum: 0
-        Groups:
-          type: object
-          items:
-            $ref: "#/components/schemas/Group"
-    Group:
-      type: object
-      properties:
-        groupID:
-          type: integer
-          minimum: 0
-        Name:
+        status:
           type: string
-          example: "filmes favoritos"
-        Description:
-          type: string
-          example: " Filmes Excelentes"
-        Group:
-          type: object
-          items:
-            $ref: "#/components/schemas/movieResult"
-            TotalDuration:
-              type: integer
-              minimum: 0
-
-    groupResult:
-      type: object
-      properties:
-        groupID:
-          type: integer
-          minimum: 0
-        Name:
-          type: string
-          example: "filmes favoritos"
-        Description:
-          type: string
-          example: " Filmes Excelentes"
-        Group:
-          type: object
-          items:
-            $ref: "#/components/schemas/movieResult"
-            TotalDuration:
-              type: integer
-              minimum: 0
-
-# POST GROUP  ---- adds a group ---- #
-    GroupRequest:
+          example: User with name joao created with success
+        user:
+          $ref: '#/components/schemas/NewUser'
+    NewGroupCreated:
       required:
-        - Name
-        - Description
+        - status
+        - group
       type: object
       properties:
-        Name:
+        status:
           type: string
-          example: "action movies"
-        Description:
-          type: string
-          example: "my favorite action movies"
-
-# PUT GROUP  ---- modifie a group ---- #
-    GroupRequestPut:
-      required:
-        - Name
-        - Description
-      type: object
-      properties:
-        Name:
-          type: string
-          example: "action movies"
-        Description:
-          type: string
-          example: "my favorite action movies"
-
-    groupUpdateRequest:
-      required:
-        - Name
-        - Description
-      type: object
-      properties:
-        userId:
-          type: integer
-        groupID:
-          type: integer
-          minimum: 0
-        Name:
-          type: string
-          example: "filmes favoritos ID"
-        Description:
-          type: string
-          example: " Filmes com  ID"
-        Group:
-          type: array
-          items:
-            $ref: "#/components/schemas/movieResult"
-        TotalDuration:
-          type: integer
-          minimum: 0
-
-    NewGroupAdd:
-      required:
-        - userId
-        - groupID
-        - movieID
-      type: object
-      properties:
-        userId:
-          type: integer
-          minimum: 0
-        Name:
-          type: string
-          example: "filmes ADD"
-        Description:
-          type: string
-          example: "Os meus filmes ADD movie"
-        Group:
-          type: array
-          items:
-            $ref: "#/components/schemas/groupResult"
-
+          example: Group with id 123 created with success
+        group:
+          $ref: '#/components/schemas/Group'
     InvalidRequest:
       type: object
       properties:
         error:
           type: string
-          example: "Missing required parameter"
-          
-security:
-  - bearerAuth: []         # use the same name as above```
+          example: "Missing required parameters"
+    NotFound:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Not found"
+    Search:
+      required:
+        - name
+        - top250
+      type: object
+      properties:
+        name:
+          type: string
+          example: The Good, the Bad and the Ugly (1966)
+        top250:
+          type: integer
+    Movies:
+      required:
+        - userId
+        - groupId
+        - id
+        - name
+        - duration
+    NewMovieAdded:
+      required:
+        - status
+        - group
+        - movie
+      type: object
+      properties:
+        status:
+          type: string
+          example: Movie with id 123 added with success
+        group:
+          $ref: '#/components/schemas/Group'
+        movie:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 3524549
+            name:
+              type: string
+              example: The Good, the Bad and the Ugly (1966)
+            duration:
+              type: integer
+              example: 90
+```
