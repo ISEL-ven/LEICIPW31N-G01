@@ -17,17 +17,11 @@ export default function () {
         deleteMovie
     }
 
-    async function getGroups(userId) {
-        const query = {
-            query: {
-              match: {
-                "ownerUser": userId
-              }
-            }
-        }
-        
-        return get(URI_MANAGER_GROUPS.getAll(), query)
-            .then(body => body.hits.hits.map(createGroupFromElastic))
+    async function getGroups(userID) {        
+        let groups = await get(URI_MANAGER_GROUPS.getAll())
+        groups = groups.hits.hits.map(createGroupFromElastic)
+
+        return groups.filter((g) => g.userId == userID)        
     }
 
     async function getDetailsFromGroup(id) {
@@ -35,7 +29,7 @@ export default function () {
             .then(createGroupFromElastic)
     }
 
-    async function createGroup(userID,groupToCreate) {
+    async function createGroup(userID, groupToCreate) {
         const newGroup = {
             title: groupToCreate.title,
             description: groupToCreate.description,
@@ -103,6 +97,7 @@ export default function () {
     function createGroupFromElastic(groupElastic) {
         let group = groupElastic._source
         group.id = groupElastic._id
+
         return group
     }
 }

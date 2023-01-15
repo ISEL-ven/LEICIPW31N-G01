@@ -24,6 +24,7 @@ export default function(groupsData, usersData, moviesData) {
         updateGroup: updateGroup,            // group name, etc
         deleteGroup: deleteGroup,            // remove group from user
         createGroup: createGroup,            // add new group to user
+        createGroupWeb: createGroupWeb,
         getMovies: getMovies,                // search movies
         getMovie: getMovie,                  // get especific movie
         deleteMovie: deleteMovie,            // remove movie from group
@@ -41,7 +42,7 @@ export default function(groupsData, usersData, moviesData) {
         if (user.password == password) return user    //if user is undefined if loop is false
     }
 
-    async function getGroupsWeb(q, skip=0, limit=MAX_LIMIT) {
+    async function getGroupsWeb(userName, q, skip=0, limit=MAX_LIMIT) {
         limit = Number(limit)
         skip = Number(skip)
         if (   isNaN(limit)
@@ -54,7 +55,7 @@ export default function(groupsData, usersData, moviesData) {
             ) {
                 throw errors.INVALID_PARAMETER('skip or limit', `Skip and limit must be positive, less than ${MAX_LIMIT} and its sum must be less or equal to ${MAX_LIMIT}`)
             }
-            return groupsData.getGroups(0, q, skip, limit)
+            return groupsData.getGroups(userName, q, skip, limit)
     }
 
     async function getGroups(userToken, q, skip=0, limit=MAX_LIMIT) {
@@ -114,6 +115,21 @@ export default function(groupsData, usersData, moviesData) {
         }
 
         return groupsData.createGroup(user.id, groupToCreate)
+    }
+
+    async function createGroupWeb(username, groupToCreate) {
+        const user = await usersData.getUser(username)
+        if (!user) {
+            throw errors.USER_NOT_FOUND()
+        }
+        if (!isAString(groupToCreate.title)) {
+            throw errors.INVALID_PARAMETER('title')
+        }
+        if (!isAString(groupToCreate.description)) {
+            throw errors.INVALID_PARAMETER('description')
+        }
+
+        return groupsData.createGroup(username, groupToCreate)
     }
 
     async function updateGroup(userToken, groupId, groupToCreate) {

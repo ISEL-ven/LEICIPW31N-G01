@@ -50,6 +50,7 @@ export default function (services) {
     }
 
     async function getHome (req, rsp) {
+        console.log(req.user)
         let user = {
             id: undefined,
             username: undefined,
@@ -65,7 +66,7 @@ export default function (services) {
     }
 
     async function getGroupsInternal(req, rsp) {
-        const groups = await services.getGroupsWeb(req.token, req.query.q, req.query.skip, req.query.limit)
+        const groups = await services.getGroupsWeb(req.user.username, req.query.q, req.query.skip, req.query.limit)  // passei user
         const user = req.user
 
         return new View('groups', { title: 'My playlists', groups: groups, user })
@@ -87,13 +88,13 @@ export default function (services) {
         const groupId = req.params.id
         const group = await services.deleteGroup(req.token, groupId)
         const groups = await services.getGroupsWeb(req.token, req.query.q, req.query.skip, req.query.limit)
-        
+
         return new View('groups', {groups: groups})
     }
 
     async function createGroupInternal(req, rsp) {
         try {
-            const newGroup = await services.createGroup(req.token, req.body)
+            const newGroup = await services.createGroupWeb(req.user.username, req.body)
             rsp.redirect(`${ROOT}`)
         } catch (e) {
             if (e.code == 1) {
