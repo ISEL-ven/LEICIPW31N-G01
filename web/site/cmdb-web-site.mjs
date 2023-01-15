@@ -86,8 +86,9 @@ export default function (services) {
     async function deleteGroupInternal(req, rsp) {
         const groupId = req.params.id
         const group = await services.deleteGroup(req.token, groupId)
-        group.user = req.user
-        rsp.redirect(ROOT)
+        const groups = await services.getGroupsWeb(req.token, req.query.q, req.query.skip, req.query.limit)
+        
+        return new View('groups', {groups: groups})
     }
 
     async function createGroupInternal(req, rsp) {
