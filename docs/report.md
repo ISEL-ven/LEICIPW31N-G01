@@ -42,16 +42,16 @@ Figura 1 - Esquema estrutura da aplicação do lado clientes
 
 ### Extrutura da aplicação:
 
-Esta aplicação foi desenvolvida em nodeJS, fazendo uso do Express (web server), Handlebars (view engine), Passport (user authentication) e Elasticsearch (database)
+Esta aplicação foi desenvolvida em nodeJS, fazendo uso do Express (web server), Handlebars (view engine), Passport (user authentication) e ElasticSearch (database)
 
-A aplicação inicia no módulo CMDB-server este vai carregar os módulos utilizados, defenir constantes, usar middlewares e definir as rotas para uso da componente web-api e web-site.
+A aplicação inicia no módulo CMDB-server este vai carregar os módulos utilizados, definir constantes, usar middlewares e definir as rotas para uso da componente web-api e web-site.
 
 A componente web, de manipulação e tratamento de pedidos e respostas HTTP, divide-se em duas subcomponentes principais,  web-api e web-site.
-A web-api para tratar pedidos e gerar respostas relativos à API no formato JSON e a web-site para a mesma finalidade mas usando o formato HTTP para gerar as respostas. Nesta última, fazendo e uso do motor de vistas (view engine) Handlebars, temos também o modulo views, onde são feitas dinâmicamente, todas as páginas web de resposta ao cliente. Para a validação e obtenção de dados, tanto a componente web-api como a web-site se ligam por sua vez à componente services.
+A web-api para tratar pedidos e gerar respostas relativos à API no formato JSON e a web-site para a mesma finalidade mas usando o formato HTTP para gerar as respostas. Nesta última, fazendo e uso do motor de vistas (view engine) Handlebars, temos também o módulo views, onde são feitas dinâmicamente, todas as páginas web de resposta ao cliente. Para a validação e obtenção de dados, tanto a componente web-api como a web-site ligam-se à componente services.
 
-Este módulo cmdb-services, é onde se encontra toda a lógica e regras da aplicação, fazendo assim de ligação entre as componentes web e a componente data. É onde são analizados e filtrados os pedidos, e formatadas as respostas dos dados obtidos pela camada seguinte.
+Este módulo cmdb-services, é onde podemos encontrar toda a lógica e regras da aplicação, fazendo assim da ponte entre as componentes web e data. Nestas componentes, são analizados e filtrados os pedidos, e formatadas as respostas dos dados obtidos pela camada seguinte.
 
-O último módulo, data, é composto por três submódulos lógicos, um utilizado anteriormente para o armazenamento e pesquisa de dados internos, na memoria, outro para lidar com chamadas http à API da webapp IMDB, e, nesta última fase um que utiliza a base de dados não relacional, Elasticsearch. Tanto o submódulo da mamoria interna bem como o do elastic search são ainda subdivididos em dados referentes a utilizadores e dados referentes a grupos de filmes de utilizadores.
+O último módulo, data, é composto por três submódulos lógicos, um utilizado anteriormente para o armazenamento e pesquisa de dados internos, na memoria, outro para lidar com pedido HTTP à API da webapp IMDB, e, nesta última fase um que utiliza a base de dados não relacional, ElasticSearch. Tanto o submódulo da memória interna bem como o do ElasticSearch são ainda subdivididos em dados referentes a utilizadores e dados referentes a grupos de filmes de utilizadores.
 
 ![server_structure](https://github.com/isel-leic-ipw/cmdb-ipw-leic2223i-ipw31n-g01/blob/main/docs/images/server.jpg)  
 Figura 2 - Esquema estrutura da aplicação do servidor
