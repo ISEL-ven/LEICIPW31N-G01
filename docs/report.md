@@ -66,24 +66,24 @@ Nota: todos os objetos criados pelo elasticSearch inicializam se sempre com o se
 ## Instruções de instalação e execução da aplicação
 
 **Dependências - Modulos usados**
-cookie-parser - análise e manipulação de cookies
-cors - prevenção de ataques por Cross Origin Resource Sharing
-crypto - biblioteca de criptografia para geração de números 
-express - framework web, server
-express-session - para manipular sessões
-hbs - handlebars, motor de vistas (view engine)
-mocha - testes
-morgan - visualização de pedidos HTTP e códigos de resposta em modo de desenvolvimento
-node-fetch - para efetuar pedidos HTTP
-nodemon - para monitorizar alterações no código quando a app se encontra em desenvolvimento
-open-api - definição da API em YAML
-passport - autenticação
-passport-local - autenticação local
-serve-favicon - mostra favicon na página web
-session-file-store - guarda em ficheiro dados relativos ás sessões
-swagger - visualização da API
-swagger-ui-express - visualização da API
-yamljs - suporte a YAML
+* cookie-parser - análise e manipulação de cookies
+* cors - prevenção de ataques por Cross Origin Resource Sharing
+* crypto - biblioteca de criptografia para geração de números 
+* express - framework web, server
+* express-session - para manipular sessões
+* hbs - handlebars, motor de vistas (view engine)
+* mocha - testes
+* morgan - visualização de pedidos HTTP e códigos de resposta em modo de desenvolvimento
+* node-fetch - para efetuar pedidos HTTP
+* nodemon - para monitorizar alterações no código quando a app se encontra em desenvolvimento
+* open-api - definição da API em YAML
+* passport - autenticação
+* passport-local - autenticação local
+* serve-favicon - mostra favicon na página web
+* session-file-store - guarda em ficheiro dados relativos ás sessões
+* swagger - visualização da API
+* swagger-ui-express - visualização da API
+* yamljs - suporte a YAML
 
 **Configuração do Elasticsearch**
 É necessário ter o elasticsearch instalado e configurado para correr a aplicação.
@@ -100,8 +100,8 @@ xpack.security.enabled: false
 ```
 
 Para a criação dos indexes user e groups é utilizado o Postman (http://postman.com), onde são efetucados:
-PUT http://localhost:9200/users
-PUT http://localhost:9200/groups
+* PUT http://localhost:9200/users
+* PUT http://localhost:9200/groups
 
 
 **Para executar a aplicação**
