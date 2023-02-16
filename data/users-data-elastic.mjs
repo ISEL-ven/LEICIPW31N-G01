@@ -36,8 +36,8 @@ export default function () {
 
     async function createUser(username, password) {
         const newUser = {
-            token: crypto.randomUUID() ,
-            username: username ,
+            token: crypto.randomUUID(),
+            username: username,
             password: password
         }
 

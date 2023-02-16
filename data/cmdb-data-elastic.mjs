@@ -20,9 +20,9 @@ export default function () {
     async function getGroups(userID) {        
         let groups = await get(URI_MANAGER_GROUPS.getAll())
         groups = groups.hits.hits.map(createGroupFromElastic)
-
-        return groups.filter((g) => g.userId == userID)        
+        return groups.filter((g) => g.userId == userID.username)        
     }
+    
 
     async function getDetailsFromGroup(id) {
         return get(URI_MANAGER_GROUPS.get(id))

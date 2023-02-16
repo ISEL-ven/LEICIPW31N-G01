@@ -50,7 +50,6 @@ export default function (services) {
     }
 
     async function getHome (req, rsp) {
-        console.log(req.user)
         let user = {
             id: undefined,
             username: undefined,
@@ -66,7 +65,7 @@ export default function (services) {
     }
 
     async function getGroupsInternal(req, rsp) {
-        const groups = await services.getGroupsWeb(req.user.username, req.query.q, req.query.skip, req.query.limit)  // passei user
+        const groups = await services.getGroupsWeb(req.user, req.query.q, req.query.skip, req.query.limit)  // passei user
         const user = req.user
 
         return new View('groups', { title: 'My playlists', groups: groups, user })
@@ -127,8 +126,8 @@ export default function (services) {
     }
 
     async function getMoviesInternal(req, rsp) {
-        const groups = await services.getGroups(req.token)
-        const movies = await services.getMoviesByName(req.token, req.query.q, req.query.skip, req.query.limit)      //gets all movies
+        const groups = await services.getGroups(req.user)
+        const movies = await services.getMoviesByName(req.user.username, req.query.q, req.query.skip, req.query.limit)      //gets all movies
         movies.map(x => x.groups = {groups})
         
         rsp.render('movies', {movies: movies})

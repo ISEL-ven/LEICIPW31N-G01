@@ -72,12 +72,13 @@ export default function(groupsData, usersData, moviesData) {
                 throw errors.INVALID_PARAMETER('skip or limit', `Skip and limit must be positive, less than ${MAX_LIMIT} and its sum must be less or equal to ${MAX_LIMIT}`)
             }
 
-        const user = await usersData.getUser(userToken)
+        const user = await usersData.getUser(userToken.username)
+        console.log(user)
         if (!user) {
             throw errors.USER_NOT_FOUND()
         }
 
-        return groupsData.getGroups(user.id, q, skip, limit)
+        return groupsData.getGroups(userToken, q, skip, limit)
     }
 
     async function getGroup(userToken, groupId) {
