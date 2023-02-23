@@ -39,8 +39,8 @@ export default function (services) {
         getUpdateGroupForm: handleRequest(getUpdateGroupForm),
         getMovie: handleRequest(getMoviesInternal),
         getMovieDetails : getMovieDetailsInternal,
-        addMovie: addMovieInternal,  // FALTA PASSAR PELO HANDLER
-        deleteMovie: deleteMovieInternal, // FALTA PASSAR PELO HANDLER
+        addMovie: addMovieInternal,  
+        deleteMovie: deleteMovieInternal, 
         getMovies: handleRequest(getMoviesInternal),        
         
     }
@@ -84,11 +84,11 @@ export default function (services) {
     }
 
     async function deleteGroupInternal(req, rsp) {
+        const user = req.user
         const groupId = req.params.id
         const group = await services.deleteGroup(req.token, groupId)
-        const groups = await services.getGroupsWeb(req.token, req.query.q, req.query.skip, req.query.limit)
-
-        return new View('groups', {groups: groups})
+        const groups = await services.getGroupsWeb(req.user.username, req.query.q, req.query.skip, req.query.limit)
+        rsp.redirect(`${ROOT}`)
     }
 
     async function createGroupInternal(req, rsp) {
@@ -136,7 +136,6 @@ export default function (services) {
     async function getMovieDetailsInternal(req, rsp) {       
         const idMovie =req.params.id
         const movie = await services.getMovieDetails(req.token,idMovie)
-        
         rsp.render("movie-detail", movie)
     }
 
@@ -155,7 +154,7 @@ export default function (services) {
         const movieId = req.params.idMovie
         const movie = await services.addMovie(userToken, groupId, movieId)
 
-        getHome(req, rsp)        
+        rsp.redirect(`${ROOT}`)      
     }
     
      // Auxiliary functions ----------------------------------------------------------------

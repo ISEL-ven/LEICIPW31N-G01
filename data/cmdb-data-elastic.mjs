@@ -20,6 +20,7 @@ export default function () {
     async function getGroups(userID) {        
         let groups = await get(URI_MANAGER_GROUPS.getAll())
         groups = groups.hits.hits.map(createGroupFromElastic)
+        
         return groups.filter((g) => g.userId == userID.username)        
     }
     
@@ -48,6 +49,7 @@ export default function () {
         const movieInfo = await getMovieByIdExternal(movieId)
         let duration = parseInt(movieInfo.runtimeMins)
         if (duration == null || isNaN(duration)) duration = 0       //if duration is null or Nan it is set to zero
+        
         const movie = {
             id: movieComplete.id,
             title: movieComplete.title,
@@ -57,6 +59,7 @@ export default function () {
             director: movieInfo.directors,
             actors: movieInfo.actorList,
         }
+        
         let group = await getDetailsFromGroup(groupId)    //gets movie from elastic database
         group.totalDuration += movie.runtimeMins
         group.numMovies++
@@ -78,7 +81,7 @@ export default function () {
     }
 
     async function deleteGroup(id) {
-        return del(URI_MANAGER_GROUPS.delete(id), )
+        return del(URI_MANAGER_GROUPS.delete(id))
             .then(body => body._id)
     }
 
@@ -90,7 +93,7 @@ export default function () {
         group.numMovies--
         group.movies.splice(allMovies.indexOf(movieToRemove),1)
         
-        return put(URI_MANAGER_GROUPS.addTo(groupId), group)
+        return post(URI_MANAGER_GROUPS.addTo(groupId), group)
             .then( () => { return group })
     }
 
